@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<book>
+  <style font="Verdana" size="8"></style>
+  <style id="s35" font="Times New Roman" bold="1" valign="Bottom"></style>
+  <style id="s21" font="Tahoma" bold="1" format="&quot;$&quot;#,##0.00"></style>
+  <style id="s22" font="Verdana" size="12" bold="1" color="#FFFFFF" background="#3366FF"></style>
+  <style id="s23" font="Verdana" size="12" bold="1" color="#FFFFFF" background="#3366FF" format="Short Date"></style>
+  <style id="s24" font="Verdana" size="12" bold="1" color="#FFFFFF" background="#3366FF" format="General Date"></style>
+  <style id="s26" align="Center" valign="Bottom"></style>
+  <style id="s27" font="Verdana" size="8" bold="1" italic="1" underline="1"></style>
+  <style id="s28" font="Verdana" size="8" underline="1"></style>
+  <style id="s29" font="Verdana" bold="1"></style>
+  <style id="s31" font="Verdana" size="8" bold="1" background="#FFFF00"></style>
+  <name id="mycol" formula="=COLUMN()" />
+  <name id="myrow" formula="=ROW()" />
+  <sheet id="Sheet1">
+    <name id="mycolplusrow" formula="=Sheet1!R9C7+Sheet1!R10C7" />
+    <cell row="1" col="1" type="Number">1</cell>
+    <cell row="1" col="2" type="Number" formula="=R1C1+10">11</cell>
+    <cell row="1" col="3" type="Number" formula="=R1C1+20">21</cell>
+    <cell row="1" col="4" type="Number" style="s21" formula="=SUM(R1C1:R1C3)">33</cell>
+    <cell row="2" col="1" type="Boolean">1</cell>
+    <cell row="3" col="1" type="Number" style="s22">38353.579340277778</cell>
+    <cell row="3" col="2" type="DateTime" style="s23">2005-01-02T13:54:15.000</cell>
+    <cell row="3" col="3" type="DateTime" style="s24">2005-01-03T13:54:15.000</cell>
+    <cell row="4" col="1" type="String">abc</cell>
+    <cell row="9" col="1" type="String">pre-merge</cell>
+    <cell row="9" col="4" type="String">post-merge</cell>
+    <cell row="9" col="7" type="Number" style="s27" formula="=myrow">9</cell>
+    <cell row="10" col="5" type="Error">#N/A</cell>
+    <cell row="10" col="7" type="Number" style="s27" formula="=mycol">7</cell>
+    <cell row="12" col="7" type="Number" style="s28" formula="=mycolplusrow">16</cell>
+  </sheet>
+  <sheet id="Sheet2">
+    <cell row="1" col="1" type="String" style="s29" formula="=Sheet1!R1C1 &amp; &quot; plus text&quot;">1 plus text</cell>
+  </sheet>
+</book>
+

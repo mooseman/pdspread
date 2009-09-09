@@ -13,71 +13,59 @@
 #  ^Q (Quit),  ^H (Backspace),  ^S(Save), ^A(save As),  
 #  ^B (Left-arrow) ^F(Right-arrow), ^P(Up-arrow), ^N(Down-arrow)      
 
-
 import sys, curses, curses.ascii, curses.textpad, traceback, string, os
 
-#  A cell class 
-class cell(object): 
-  def __init__(self): 
-     self.data = self.row = self.col = None 
-     self.width = 8 
-     self.height = 2 
-     
-  def add(self, data): 
-     self.data = data      
-     
-  def display(self): 
-     print self.data      
-     
-#  A sheet class 
-class sheet(cell):  
-  def __init__(self): 
-     self.maxrows = 100 
-     self.maxcols = 50 
-     self.curraddress = [1,1]
-     self.next = None
-     for y in range(1, self.maxrows): 
-        for x in range(1, self.maxcols): 
-           self.window.move(y, x) 
-           if y == 1: 
-              self.screen.addstr(y, x, str(y) )
-           else: 
-              self.screen.addstr(y, x, "" ) 
-           if x == 1: 
-              self.colname = chr(x+64) 
-              self.screen.addstr(y, x, str(self.colname) ) 
-           else: 
-              self.screen.addstr(y, x, "" )               
-                                   
-  def move(self, key): 
-     pass   # To be done              
      
              
 myscreen = curses.initscr()
 myscreen.border(0) 
-myscreen.addstr(1, 25, "*** P.D. Editor ***") 
+myscreen.addstr(1, 25, "*** P.D. Spreadsheet ***") 
 
-#  Create a new pad of 100 lines and 40 cols 
-mypad = curses.newpad(100, 40) 
-mywin = curses.newwin(20, 60, 0, 0) 
+#  Set up the sheet 
+a = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] 
+
+b = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+      17, 18, 19, 20] 
+
+y = 2 
+x = 7 
+
+myscreen.move(y, x) 
+
+for chr in a: 
+   myscreen.addstr(y, x, str(chr) ) 
+   x += 7 
+   myscreen.move(y, x) 
+
+# Finished the column headings. Move to the left of the screen to 
+# do the row labels.   
+myscreen.refresh()   
+
+
+myscreen.move(15, 2) 
+myscreen.refresh()            
+         
+y = 3 
+x = 2          
+for chr in b: 
+   myscreen.addstr(y, x, str(chr) ) 
+   y += 1 
+   myscreen.move(y, x) 
+
 
 #  Do the column and row labels and set up the sheet 
 #  Note - ord("A") = 65, ord("Z") is 90 
 #  chr(65) = 'A' , chr(90) = 'Z' 
 
+myscreen.addstr(21, 78, "", curses.A_STANDOUT)
 
-
-
-mywin.addstr(2, 1, "", curses.A_STANDOUT)
-
-myeditor = curses.textpad.Textbox(mywin) 
+myeditor = curses.textpad.Textbox(myscreen) 
 myeditor.edit() 
 
-mywin.refresh()
-mywin.getch() 
+   
+myscreen.refresh()
+myscreen.getch() 
 
-a = sheet() 
-a.__init__() 
 
 curses.endwin()
 

@@ -16,7 +16,43 @@
 import sys, curses, curses.ascii, curses.textpad, traceback, string, os
 
      
-             
+class cell(object): 
+  def __init__(self): 
+    self.width = 7 
+    self.height = 2    
+    self.text = "       " 
+   
+  def set(self, text): 
+    self.text = text 
+    
+  def display(self):     
+    return self.text      
+               
+               
+class sheet(cell): 
+  def init(self): 
+    self.col = self.row = 0 
+    # Draw the column and row headings 
+    x = range(1, 11)
+    y = range(1, 11)
+    
+    for val in x: 
+      for val in y: 
+        self.display() 
+            
+  def address(self): 
+    return (self.col, self.row) 
+    
+  def move(self, col, row): 
+    self.col = col 
+    self.row = row 
+            
+  def write(self, col, row, text): 
+    self.move(col, row)     
+    cell.set(self, text)                       
+               
+               
+                  
 myscreen = curses.initscr()
 myscreen.border(0) 
 myscreen.addstr(1, 25, "*** P.D. Spreadsheet ***") 
@@ -55,12 +91,17 @@ for chr in b:
 
 #  Draw the grid on the screen 
 y = 3
-x = 4 
-for x in range(4, 70, 7): 
-  for y in range(3, 21, 1): 
+x = 4
+
+#  Create a sheet 
+myscreen.move(y, x)
+a = sheet()  
+a.init() 
+
+for x in range(4, 70, 8): 
+  for y in range(3, 21, 2): 
      myscreen.move(y, x)
-     curses.textpad.rectangle(myscreen, y, x, y+1, x+6) 
-     
+     myscreen.addstr(y, x, str(a.display()), curses.A_REVERSE) 
 
 #  Do the column and row labels and set up the sheet 
 #  Note - ord("A") = 65, ord("Z") is 90 

@@ -3,10 +3,12 @@
 
  Inspired by "sc", this is the start of a Python spreadsheet using curses. 
 
- Acknowledgement - This code is based on the code for the great little 
+ Acknowledgement - This app has some code from the great little 
  app that David Mertz did for his "Charming Python - curses programming" column 
  Here is the link to that - 
  http://www.ibm.com/developerworks/linux/library/l-python6.html 
+
+ To exit the apps, press Ctrl-C. 
  
  As usual, this is public-domain... "share and enjoy....."  :)  
 - mooseman 

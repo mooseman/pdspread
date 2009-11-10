@@ -42,7 +42,7 @@
 # via a Tk widget.)  
 #
 
-import curses, re, string
+import curses, re, string, curses.ascii, curses.textpad, traceback, os
 
 def yx2str(y,x):
     "Convert a coordinate pair like 1,26 to AA2"
@@ -70,24 +70,40 @@ assert yx2str(0,0) == 'A1'
 assert yx2str(1,26) == 'AA2'
 assert str2yx('AA2') == (1,26)
 assert str2yx('B2') == (1,1)
+
+
+# Create a cell class      
+class cell(object): 
+  def init(self): 
+    self.width = 20 
+    self.height = 2    
+    self.text = None 
+    
+  #def addr(self, y, x): 
+  #  self.y = y 
+  #  self.x = x    
+   
+  def set(self, text): 
+    if self.text == None: 
+       self.text = text 
+    else:        
+       self.text.append(text)  
+    print self.text        
+    
 	
 class TabFile:
-    def __init__(self, scr, filename, column_width=20):
-	self.scr=scr ; self.filename = filename
-	self.column_width = column_width
-	f=open(filename, 'r')
-	self.data = []
-	while (1):
-	    L=f.readline()
-	    if L=="": break
-	    self.data.append( string.split(L, '\t') )
-#	    if len(self.data)>6: break # XXX
-	self.x, self.y = 0,0
-	self.win_x, self.win_y = 0,0
-	self.max_y, self.max_x = self.scr.getmaxyx()
-	self.num_columns = int(self.max_x/self.column_width)
-	self.scr.clear()	
-	self.display()
+    def __init__(self, scr, column_width=20): 
+        self.scr = scr         
+        self.column_width = column_width       
+        self.stuff = "" 
+        self.data = []         
+        
+        self.x, self.y = 0,0 
+        self.win_x, self.win_y = 0,0 
+        self.max_y, self.max_x = self.scr.getmaxyx()
+        self.num_columns = int(self.max_x/self.column_width)
+        self.scr.clear()	
+        self.display()
 
     def move_to_end(self):
 	"""Move the highlighted location to the end of the current line."""
@@ -107,12 +123,10 @@ class TabFile:
 		self.win_x = 0 ; self.x = end
 	    else:
 		self.x = self.num_columns-1
-		self.win_x = end-self.x
-	        
-	
+		self.win_x = end-self.x 
+        
     def display(self):
 	"""Refresh the current display"""
-	
 	self.scr.addstr(0,0, 
 			yx2str(self.y + self.win_y, self.x+self.win_x)+'    ',
 			curses.A_REVERSE)
@@ -141,35 +155,21 @@ class TabFile:
 def main(stdscr):
     import string, curses, sys
 
-    if len(sys.argv)==1:
-	print 'Usage: tabview.py <filename>'
-	return
-    filename=sys.argv[1]
-
     # Clear the screen and display the menu of keys
     stdscr.clear()
-    file = TabFile(stdscr, filename)
+    file = TabFile(stdscr)
     
     # Main loop:
     while (1):
 	stdscr.move(file.y+2, file.x*file.column_width)     # Move the cursor
 	c=stdscr.getch()		# Get a keystroke
-	if 0<c<256:
-	    c=chr(c)
-	    # Q or q exits
-	    if c in 'Qq': break  
-	    # Tab pages one screen to the right
-	    elif c=='\t':
-		file.win_x = file.win_x + file.num_columns
-		file.display()
-	    else: pass                  # Ignore incorrect keys
-
-	# Cursor keys
-	elif c==curses.KEY_UP:
+                                      
+    # Cursor keys
+	if c==curses.KEY_UP:
 	    if file.y == 0:
 		if file.win_y>0: file.win_y = file.win_y - 1
 	    else: file.y=file.y-1
-	    file.display()
+	    file.display()                  
 	elif c==curses.KEY_DOWN:
 	    if file.y < file.max_y-3 -1: file.y=file.y+1
 	    else: file.win_y = file.win_y+1
@@ -215,14 +215,26 @@ def main(stdscr):
 		file.display()
         else: 
 	    stdscr.addstr(0,50, curses.keyname(c)+ ' pressed')
-	    stdscr.refresh()
-	    pass			# Ignore incorrect keys
+	    stdscr.refresh() 
+    elif c==curses.KEY_ENTER:
+        pass 
+        
+    # Actions for standard printable chars and whitespace 
+    elif 0<c<256:                                     
+           c=chr(c)   
+           curses.echo() 
+           self.stuff += c                           
+           stdscr.refresh()         
+        
+
+
 
 if __name__=='__main__':
     import curses, traceback
     try:
-    # Initialize curses
-	stdscr=curses.initscr()         
+	# Initialize curses
+	stdscr=curses.initscr() 
+    
 	# Turn off echoing of keys, and enter cbreak mode,
 	# where no buffering is performed on keyboard input
 	curses.noecho() ; curses.cbreak()
@@ -237,7 +249,7 @@ if __name__=='__main__':
 	curses.echo() ; curses.nocbreak()
 	curses.endwin()			# Terminate curses
     except:
-    # In the event of an error, restore the terminal
+        # In the event of an error, restore the terminal
 	# to a sane state.
 	stdscr.keypad(0)
 	curses.echo() ; curses.nocbreak()

@@ -37,6 +37,7 @@ class keyhandler:
        self.win_y = self.win_x = 0  
        # The top line 
        self.topline = 0
+       self.bottomline = 23 
        
        (self.getbegy, self.getbegx) = self.scr.getbegyx()               
        (self.max_y, self.max_x) = self.scr.getmaxyx()     
@@ -94,11 +95,14 @@ class keyhandler:
     # scrolls up will increase this number by 1. Each line scrolled 
     # down will decrease it by 1.  
     def pointtotopline(self, num): 
-       self.topline = self.topline + num 
+       self.topline = self.topline + num   
+       
+    def pointtobottomline(self, num): 
+       self.bottomline = self.bottomline + num        
        
            
-    # Retrieve data that has scrolled off the screen 
-    def retrieve(self): 
+    # Retrieve data that has scrolled off the top of the screen 
+    def retrievetop(self): 
        (y, x) = self.scr.getyx()  
        self.myval = self.topline - 1 
        if self.data.has_key(self.myval):  
@@ -106,9 +110,21 @@ class keyhandler:
             #self.scr.addstr(y, 0, self.stuff )                 
        else: 
             pass             
-       self.scr.refresh()  
+       self.scr.refresh() 
        
-        
+       
+    # Retrieve data that has scrolled off the bottom of the screen 
+    def retrievebot(self): 
+       (y, x) = self.scr.getyx()  
+       self.myval = self.bottomline + 1 
+       if self.data.has_key(self.myval):  
+            self.scr.addstr(y, 0, str(self.data[self.myval] ) )                 
+            #self.scr.addstr(y, 0, self.stuff )                 
+       else: 
+            pass             
+       self.scr.refresh()     
+       
+       
     def display(self): 
        (y, x) = self.scr.getyx()  
        if self.data.has_key(self.win_y):  
@@ -175,6 +191,7 @@ class keyhandler:
              else:                                              
                 self.scr.scroll(1) 
                 self.pointtotopline(1) 
+                self.pointtobottomline(1)                 
                 (y, x) = self.scr.getyx() 
                 self.scr.move(y, 0) 
                 #self.scr.mvwin(self.getbegy+1, 0)
@@ -198,7 +215,7 @@ class keyhandler:
              self.scr.refresh()                                         
           elif c==curses.KEY_UP:  
              curses.noecho() 
-             self.saveline()                                           
+             #self.saveline()                                           
              if y > 0:                                   
                 self.scr.move(y-1, x)                    
                 self.set_y(-1)    
@@ -206,20 +223,23 @@ class keyhandler:
              elif y <= 0:   
                 self.scr.scroll(-1)   
                 self.scr.move(y, 0)  
-                self.retrieve()                               
-                self.pointtotopline(-1)                 
+                self.retrievetop()                               
+                self.pointtotopline(-1)   
+                self.pointtobottomline(-1)               
                 self.display()                                                                                            
              self.scr.refresh()
           elif c==curses.KEY_DOWN:
              curses.noecho()  
-             self.saveline()                                                                   
+             #self.saveline()                                                                   
              if y < self.max_y - 1:                 
                 self.scr.move(y+1, x) 
                 self.display()                                                
                 self.set_y(1)                 
              else:                                          
                 self.scr.scroll(1) 
+                self.retrievebot() 
                 self.pointtotopline(1) 
+                self.pointtobottomline(1) 
                 (y, x) = self.scr.getyx() 
                 self.scr.move(y, x) 
                 self.display()                                                

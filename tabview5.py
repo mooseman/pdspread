@@ -215,10 +215,7 @@ def main(stdscr):
 		file.display()
         else: 
 	    stdscr.addstr(0,50, curses.keyname(c)+ ' pressed')
-	    stdscr.refresh() 
-    elif c==curses.KEY_ENTER:
-        pass 
-        
+	    file.display()         
     # Actions for standard printable chars and whitespace 
     elif 0<c<256:                                     
            c=chr(c)   

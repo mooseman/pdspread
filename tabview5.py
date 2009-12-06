@@ -71,30 +71,9 @@ assert yx2str(1,26) == 'AA2'
 assert str2yx('AA2') == (1,26)
 assert str2yx('B2') == (1,1)
 
-
-# Create a cell class      
-class cell(object): 
-  def init(self): 
-    self.width = 20 
-    self.height = 2    
-    self.text = None 
-    
-  #def addr(self, y, x): 
-  #  self.y = y 
-  #  self.x = x    
-   
-  def set(self, text): 
-    if self.text == None: 
-       self.text = text 
-    else:        
-       self.text.append(text)  
-    
-  def display(self):     
-    print self.text      
-
 	
 class keyhandler:
-    def __init__(self, scr, filename, column_width=20):
+    def __init__(self, scr, filename="", column_width=20):
         self.scr = scr
         self.scr.keypad(1) 
         self.scr.scrollok(1)
@@ -106,71 +85,71 @@ class keyhandler:
         self.stuff = "" 
         self.mytext = None 
         
-        
-        while (1): 
-           L=f.readline()
-           if L == "": 
-              break 
-           self.data.append( string.split(L, '\t') ) 
-#	    if len(self.data)>6: break # XXX
-        self.x, self.y = 0,0 
-        self.win_x, self.win_y = 0,0 
-        self.max_y, self.max_x = self.scr.getmaxyx()
-        self.num_columns = int(self.max_x/self.column_width)
-        self.scr.clear()	
-        self.display()
+        if filename != "": 
+           while (1): 
+              L=f.readline()
+              if L == "": 
+                 break 
+              self.data.append( string.split(L, '\t') ) 
+              self.x, self.y = 0,0 
+              self.win_x, self.win_y = 0,0 
+              self.max_y, self.max_x = self.scr.getmaxyx()
+              self.num_columns = int(self.max_x/self.column_width)
+              #self.scr.clear()	
+              self.action()                     
+              self.scr.refresh()
+        else: 
+           self.action()                     
+              
 
-    def move_to_end(self):
-	"""Move the highlighted location to the end of the current line."""
-
-	# This is a method because I didn't want to have the code to 
-	# handle the End key be aware of the internals of the TabFile object.
-	yp=self.y+self.win_y ; xp=self.x+self.win_x
-	if len(self.data)<=yp: end=0
-	else: end=len(self.data[yp])-1
+    def move_to_end(self):	
+       yp=self.y+self.win_y ; xp=self.x+self.win_x 
+       if len(self.data)<=yp: end=0    
+       else: end=len(self.data[yp])-1
 	
-	# If the end column is on-screen, just change the
-	# .x value appropriately.
-	if self.win_x <= end < self.win_x + self.num_columns:
-	    self.x = end - self.win_x
-	else:
-	    if end<self.num_columns:
-		self.win_x = 0 ; self.x = end
-	    else:
-		self.x = self.num_columns-1
-		self.win_x = end-self.x 
+	   # If the end column is on-screen, just change the
+	   # .x value appropriately.
+       if self.win_x <= end < self.win_x + self.num_columns:
+           self.x = end - self.win_x
+       else:
+           if end<self.num_columns:
+              self.win_x = 0 ; self.x = end
+           else:
+              self.x = self.num_columns-1
+              self.win_x = end-self.x 
         
-    def display(self):
-	"""Refresh the current display"""
-	self.scr.addstr(0,0, 
-			yx2str(self.y + self.win_y, self.x+self.win_x)+'    ',
-			curses.A_REVERSE)
+    # Code needed to set up the sheet.     
+    def do_sheet(self):	
+       self.scr.addstr(0,0,
+          yx2str(self.y + self.win_y, self.x+self.win_x)+'    ',
+          curses.A_REVERSE)
 
-	for y in range(0, self.max_y-3):
-	    self.scr.move(y+2,0) ; self.scr.clrtoeol()
-	    for x in range(0, int(self.max_x / self.column_width) ):
-		self.scr.attrset(curses.A_NORMAL)
-		yp=y+self.win_y ; xp=x+self.win_x
-		if len(self.data)<=yp: s=""
-		elif len(self.data[yp])<=xp: s=""
-		else: s=self.data[yp][xp]
-		s = string.ljust(s, 15)[0:15]
-		if x==self.x and y==self.y: self.scr.attrset(curses.A_STANDOUT)
-		self.scr.addstr(y+2, x*self.column_width, s)
+       for y in range(0, self.max_y-3):
+           self.scr.move(y+2,0) ; self.scr.clrtoeol()
+           for x in range(0, int(self.max_x / self.column_width) ):
+              self.scr.attrset(curses.A_NORMAL)
+              yp=y+self.win_y ; xp=x+self.win_x
+              if len(self.data)<=yp: s=""
+              elif len(self.data[yp])<=xp: s=""
+              else: s=self.data[yp][xp]
+              s = string.ljust(s, 15)[0:15]
+              if x==self.x and y==self.y: self.scr.attrset(curses.A_STANDOUT)
+              self.scr.addstr(y+2, x*self.column_width, s)
 
-	yp=self.y+self.win_y ; xp=self.x+self.win_x
-	if len(self.data)<=yp: s=""
-	elif len(self.data[yp])<=xp: s=""
-	else: s=self.data[yp][xp]
+           yp=self.y+self.win_y ; xp=self.x+self.win_x
+           if len(self.data)<=yp: s=""
+           elif len(self.data[yp])<=xp: s=""
+           else: s=self.data[yp][xp]
 
-	self.scr.move(1,0) ; self.scr.clrtoeol()
-	self.scr.addstr(s[0:self.max_x])
-	self.scr.refresh()
+           self.scr.move(1,0) ; self.scr.clrtoeol()
+           self.scr.addstr(s[0:self.max_x])
+           self.scr.refresh()
 
 
     def action(self): 
        while (1): 
           curses.echo()  
+          self.do_sheet() 
           self.scr.keypad(1)            
           stdscr.move(self.y+2, self.x*self.column_width)     # Move the cursor
           c=stdscr.getch()		# Get a keystroke
@@ -188,45 +167,45 @@ class keyhandler:
               curses.noecho()               
               if self.win_y>0: self.win_y = self.win_y - 1
               else: self.y=self.y-1
-              self.display()                  
+              self.scr.refresh()                  
           elif c==curses.KEY_DOWN:
              curses.noecho()  
              if self.y < self.max_y-3 -1: self.y=self.y+1
              else: self.win_y = self.win_y+1
-             self.display()
+             self.scr.refresh()
           elif c==curses.KEY_LEFT:
              curses.noecho()                
              if self.win_x>0: self.win_x = self.win_x - 1
              else: self.x=self.x-1
-             self.display()
+             self.scr.refresh()
           elif c==curses.KEY_RIGHT:
              curses.noecho()   
              if self.x < int(self.max_x/self.column_width)-1: self.x=self.x+1
              else: self.win_x = self.win_x+1
-             self.display()
+             self.scr.refresh()
           # Home key moves to the start of this line
           elif c==curses.KEY_HOME:
              curses.noecho()   
              self.win_x = self.x = 0
-             self.display()
+             self.scr.refresh()
           # End key moves to the end of this line
           elif c==curses.KEY_END:
              curses.noecho()   
              self.move_to_end()
-             self.display()
+             self.scr.refresh()
 
           # PageUp moves up a page
           elif c==curses.key_PPAGE:
              curses.noecho()   
              self.win_y = self.win_y - (self.max_y - 2)
              if self.win_y<0: self.win_y = 0
-             self.display()
+             self.scr.refresh()
           # PageDn moves down a page
           elif c==curses.key_NPAGE:
              curses.noecho()   
              self.win_y = self.win_y + (self.max_y - 2)
              if self.win_y<0: self.win_y = 0
-             self.display()	
+             self.scr.refresh()	
           # Insert memorizes the current position
           elif c==curses.key_IC:
              curses.noecho()   
@@ -237,7 +216,7 @@ class keyhandler:
              if hasattr(self, 'save_y'):
                 self.x = self.y = 0
                 self.win_y, self.win_x = self.save_y, self.save_x
-                self.display()
+                self.scr.refresh()
              else: 
                 stdscr.addstr(0,50, curses.keyname(c)+ ' pressed')
                 stdscr.refresh()

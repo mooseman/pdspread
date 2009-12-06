@@ -103,6 +103,8 @@ class keyhandler:
               self.action()                     
               self.scr.refresh()
 
+
+    # This is simply the action done when the End key is pressed. 
     def move_to_end(self):	
        yp=self.y+self.win_y ; xp=self.x+self.win_x 
        if len(self.data)<=yp: end=0    
@@ -119,6 +121,16 @@ class keyhandler:
               self.x = self.num_columns-1
               self.win_x = end-self.x 
         
+        
+    # Set the string to be displayed in a cell.          
+    def set_string(self):  
+       (y, x) = self.scr.getyx()  
+       yp=y+self.win_y ; xp=x+self.win_x
+       if len(self.data)<=yp: self.s=""
+       elif len(self.data[yp])<=xp: self.s=""
+       else: self.s=self.data[yp][xp]
+       self.s = string.ljust(self.s, 15)[0:15]
+                             
     # Code needed to set up the sheet.     
     # This is what actually makes the app a spreadsheet instead of a 
     # text-editor.  
@@ -131,23 +143,14 @@ class keyhandler:
            self.scr.move(y+2,0) ; self.scr.clrtoeol()
            for x in range(0, int(self.max_x / self.column_width) ):
               self.scr.attrset(curses.A_NORMAL)
-              
-              yp=y+self.win_y ; xp=x+self.win_x
-              if len(self.data)<=yp: s=""
-              elif len(self.data[yp])<=xp: s=""
-              else: s=self.data[yp][xp]
-              
-              s = string.ljust(s, 15)[0:15]
+              self.set_string() 
+                                          
               if x==self.x and y==self.y: self.scr.attrset(curses.A_STANDOUT)
-              self.scr.addstr(y+2, x*self.column_width, s)
+              self.scr.addstr(y+2, x*self.column_width, self.s)
 
-       yp=self.y+self.win_y ; xp=self.x+self.win_x
-       if len(self.data)<=yp: s=""
-       elif len(self.data[yp])<=xp: s=""
-       else: s=self.data[yp][xp]
-
+       self.set_string()         
        self.scr.move(1,0) ; self.scr.clrtoeol()
-       self.scr.addstr(s[0:self.max_x])
+       self.scr.addstr(self.s[0:self.max_x])
        self.scr.refresh()
        
 

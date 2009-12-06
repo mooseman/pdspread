@@ -123,25 +123,31 @@ class keyhandler:
     # This is what actually makes the app a spreadsheet instead of a 
     # text-editor.  
     def do_sheet(self):	
-       self.scr.addstr(0,0,
-          yx2str(self.y + self.win_y, self.x+self.win_x)+'    ',
-          curses.A_REVERSE)
+       self.scr.addstr(0,0, 
+			yx2str(self.y + self.win_y, self.x+self.win_x)+'    ',
+			curses.A_REVERSE)
 
        for y in range(0, self.max_y-3):
            self.scr.move(y+2,0) ; self.scr.clrtoeol()
            for x in range(0, int(self.max_x / self.column_width) ):
-              self.scr.attrset(curses.A_NORMAL)              
+              self.scr.attrset(curses.A_NORMAL)
               yp=y+self.win_y ; xp=x+self.win_x
-              s = "" 
-              
+              if len(self.data)<=yp: s=""
+              elif len(self.data[yp])<=xp: s=""
+              else: s=self.data[yp][xp]
+              s = string.ljust(s, 15)[0:15]
               if x==self.x and y==self.y: self.scr.attrset(curses.A_STANDOUT)
               self.scr.addstr(y+2, x*self.column_width, s)
 
-           yp=self.y+self.win_y ; xp=self.x+self.win_x           
-           self.scr.move(1,0) ; self.scr.clrtoeol()
-           self.scr.addstr(s[0:self.max_x])
-           self.scr.refresh()
+       yp=self.y+self.win_y ; xp=self.x+self.win_x
+       if len(self.data)<=yp: s=""
+       elif len(self.data[yp])<=xp: s=""
+       else: s=self.data[yp][xp]
 
+       self.scr.move(1,0) ; self.scr.clrtoeol()
+       self.scr.addstr(s[0:self.max_x])
+       self.scr.refresh()
+       
 
     def action(self): 
        while (1): 

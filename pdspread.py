@@ -36,37 +36,10 @@ assert yx2str(1,26) == 'AA2'
 assert str2yx('AA2') == (1,26)
 assert str2yx('B2') == (1,1)
    
-   
-class address(object):
-   def __init__(self):
-      (y, x) = self.scr.getyx() 
-      self.address = yx2str(y + self.win_y, x+self.win_x)      
-      
-#  A cell class. 
-class cell(address): 
-   def __init__(self):       
-      # The width of a column     
-      self.width = 15     
-      # A dict to store data in  
-      self.celldata = {}            
-      
-      # A cell will have a dict to store its contents. This includes 
-      # ordinary data, formulas, cell names.  
-      self.celldata.update({address: None})   
-   
-   # Add data to a cell    
-   def update(self, data):                
-      self.celldata.update({self.address: data})   
-   
-   # Remove all data from a cell 
-   def clear(self): 
-      self.celldata.update({self.address: None})  
-      
-      
-      
+         
 #  A spreadsheet class. This class also handles keystrokes  
-class sheet(cell):
-    def init(self, scr): 
+class sheet(object):
+    def __init__(self, scr): 
        self.scr = scr                       
        # Dictionary to store our data in.   
        self.data = {}           
@@ -96,7 +69,31 @@ class sheet(cell):
        self.scr.idlok(1)  
        self.scr.setscrreg(0, self.max_y-1)                                
        self.scr.refresh()	    
-                          
+    
+    # A cell-address function. 
+    def address(self):   
+       self.scr = scr  
+       (y, x) = self.scr.getyx() 
+       self.address = yx2str(y + self.win_y, x+self.win_x)      
+            
+    # A cell function. 
+    def cell(self):    
+       # The width of a column     
+       self.width = 15     
+       # A dict to store data in  
+       self.celldata = {}            
+      
+       # A cell will have a dict to store its contents. This includes 
+       # ordinary data, formulas, cell names.  
+       self.celldata.update({address: None})   
+    # Add data to a cell    
+    def update(self, data):                
+       self.celldata.update({self.address: data})      
+    # Remove all data from a cell 
+    def clear(self): 
+       self.celldata.update({self.address: None})  
+       
+                                 
     def set_y(self, val): 
        (y, x) = self.scr.getyx() 
        self.win_y += val 
@@ -610,8 +607,7 @@ class sheet(cell):
                           
 #  Main loop       
 def main(stdscr):  
-    a = sheet()      
-    a.init(stdscr) 
+    a = sheet(stdscr)          
     a.action() 
                                    
 #  Run the code from the command-line 

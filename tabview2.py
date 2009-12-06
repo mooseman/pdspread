@@ -42,7 +42,7 @@
 # via a Tk widget.)  
 #
 
-import curses, re, string
+import curses, curses.ascii, re, string
 
 def yx2str(y,x):
     "Convert a coordinate pair like 1,26 to AA2"
@@ -151,21 +151,12 @@ def main(stdscr):
     file = TabFile(stdscr, filename)
     
     # Main loop:
-    while (1):
+    while (1):    
 	stdscr.move(file.y+2, file.x*file.column_width)     # Move the cursor
 	c=stdscr.getch()		# Get a keystroke
-	if 0<c<256:
-	    c=chr(c)
-	    # Q or q exits
-	    if c in 'Qq': break  
-	    # Tab pages one screen to the right
-	    elif c=='\t':
-		file.win_x = file.win_x + file.num_columns
-		file.display()
-	    else: pass                  # Ignore incorrect keys
-
+		    
 	# Cursor keys
-	elif c==curses.KEY_UP:
+	if c==curses.KEY_UP:
 	    if file.y == 0:
 		if file.win_y>0: file.win_y = file.win_y - 1
 	    else: file.y=file.y-1
@@ -203,7 +194,11 @@ def main(stdscr):
 	    file.win_y = file.win_y + (file.max_y - 2)
 	    if file.win_y<0: file.win_y = 0
 	    file.display()
-	
+	elif 0<c<256:
+           curses.echo()                 
+           c=chr(c)	    
+           #file.win_x = file.win_x + file.num_columns
+           file.display()    
 	# Insert memorizes the current position
 	elif c==curses.KEY_IC:
 	    file.save_y, file.save_x = file.y + file.win_y, file.x + file.win_x

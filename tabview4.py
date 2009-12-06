@@ -93,14 +93,18 @@ class cell(object):
     print self.text      
 
 	
-class TabFile:
+class keyhandler:
     def __init__(self, scr, filename, column_width=20):
         self.scr = scr
+        self.scr.keypad(1)            
         self.filename = filename         
         self.column_width = column_width
         f=open(filename, 'r')
         self.data = [] 
+        self.stuff = "" 
         self.mytext = None 
+        
+        
         while (1): 
            L=f.readline()
            if L == "": 
@@ -161,6 +165,70 @@ class TabFile:
 	self.scr.addstr(s[0:self.max_x])
 	self.scr.refresh()
 
+
+    def action(self): 
+       while (1): 
+          curses.echo()  
+          stdscr.move(self.y+2, self.x*self.column_width)     # Move the cursor
+          c=stdscr.getch()		# Get a keystroke
+          if 0<c<256: 
+              c=chr(c)   
+              self.stuff += c                           
+              self.scr.refresh()             
+          # Cursor keys
+          elif c==curses.KEY_UP:
+              if self.y == 0:
+                 if self.win_y>0: self.win_y = self.win_y - 1
+                 else: self.y=self.y-1
+              self.display()                  
+          elif c==curses.KEY_DOWN:
+             if self.y < self.max_y-3 -1: self.y=self.y+1
+             else: self.win_y = self.win_y+1
+             self.display()
+          elif c==curses.KEY_LEFT:
+             if self.x == 0:
+                if self.win_x>0: self.win_x = self.win_x - 1
+                else: self.x=self.x-1
+             self.display()
+          elif c==curses.KEY_RIGHT:
+             if self.x < int(self.max_x/self.column_width)-1: self.x=self.x+1
+             else: self.win_x = self.win_x+1
+             self.display()
+
+          # Home key moves to the start of this line
+          elif c==curses.KEY_HOME:
+             self.win_x = self.x = 0
+             self.display()
+          # End key moves to the end of this line
+          elif c==curses.KEY_END:
+             self.move_to_end()
+             self.display()
+
+          # PageUp moves up a page
+          elif c==curses.key_PPAGE:
+             self.win_y = self.win_y - (self.max_y - 2)
+             if self.win_y<0: self.win_y = 0
+             self.display()
+          # PageDn moves down a page
+          elif c==curses.key_NPAGE:
+             self.win_y = self.win_y + (self.max_y - 2)
+             if self.win_y<0: self.win_y = 0
+             self.display()	
+          # Insert memorizes the current position
+          elif c==curses.key_IC:
+             self.save_y, self.save_x = self.y + self.win_y, self.x + self.win_x
+          # Delete restores a saved position
+          elif c==curses.key_DC:
+             if hasattr(self, 'save_y'):
+                self.x = self.y = 0
+                self.win_y, self.win_x = self.save_y, self.save_x
+                self.display()
+             else: 
+                stdscr.addstr(0,50, curses.keyname(c)+ ' pressed')
+                stdscr.refresh()
+                pass 
+        
+        
 def main(stdscr):
     import string, curses, sys
 
@@ -168,86 +236,17 @@ def main(stdscr):
 	print 'Usage: tabview.py <filename>'
 	return
     filename=sys.argv[1]
-
     # Clear the screen and display the menu of keys
     stdscr.clear()
-    file = TabFile(stdscr, filename)
+    file = keyhandler(stdscr, filename)        
+    file.action() 
     
-    # Main loop:
-    while (1):
-	stdscr.move(file.y+2, file.x*file.column_width)     # Move the cursor
-	c=stdscr.getch()		# Get a keystroke
-	if 0<c<256: 
-           # Enter the character          
-           # set self.text of the cell to the character  
-           a = cell() 
-           a.init() 
-           a.set(chr(c)) 
-           a.display() 
-            
-           #stdscr.addstr(file.y+2, file.x*file.column_width, chr(c))            
-           #file.display()  
-           
-    # Cursor keys
-	elif c==curses.KEY_UP:
-	    if file.y == 0:
-		if file.win_y>0: file.win_y = file.win_y - 1
-	    else: file.y=file.y-1
-	    file.display()                  
-	elif c==curses.KEY_DOWN:
-	    if file.y < file.max_y-3 -1: file.y=file.y+1
-	    else: file.win_y = file.win_y+1
-	    file.display()
-	elif c==curses.KEY_LEFT:
-	    if file.x == 0:
-		if file.win_x>0: file.win_x = file.win_x - 1
-	    else: file.x=file.x-1
-	    file.display()
-	elif c==curses.KEY_RIGHT:
-	    if file.x < int(file.max_x/file.column_width)-1: file.x=file.x+1
-	    else: file.win_x = file.win_x+1
-	    file.display()
-
-	# Home key moves to the start of this line
-	elif c==curses.KEY_HOME:
-	    file.win_x = file.x = 0
-	    file.display()
-	# End key moves to the end of this line
-	elif c==curses.KEY_END:
-	    file.move_to_end()
-	    file.display()
-
-	# PageUp moves up a page
-	elif c==curses.key_PPAGE:
-	    file.win_y = file.win_y - (file.max_y - 2)
-	    if file.win_y<0: file.win_y = 0
-	    file.display()
-	# PageDn moves down a page
-	elif c==curses.key_NPAGE:
-	    file.win_y = file.win_y + (file.max_y - 2)
-	    if file.win_y<0: file.win_y = 0
-	    file.display()
-	
-	# Insert memorizes the current position
-	elif c==curses.key_IC:
-	    file.save_y, file.save_x = file.y + file.win_y, file.x + file.win_x
-	# Delete restores a saved position
-	elif c==curses.key_DC:
-	    if hasattr(file, 'save_y'):
-		file.x = file.y = 0
-		file.win_y, file.win_x = file.save_y, file.save_x
-		file.display()
-        else: 
-	    stdscr.addstr(0,50, curses.keyname(c)+ ' pressed')
-	    stdscr.refresh()
-	    pass			# Ignore incorrect keys
-
+    
 if __name__=='__main__':
     import curses, traceback
     try:
 	# Initialize curses
-	stdscr=curses.initscr()
-        
+	stdscr=curses.initscr()    
 	# Turn off echoing of keys, and enter cbreak mode,
 	# where no buffering is performed on keyboard input
 	curses.noecho() ; curses.cbreak()

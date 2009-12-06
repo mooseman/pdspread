@@ -131,10 +131,12 @@ class keyhandler:
            self.scr.move(y+2,0) ; self.scr.clrtoeol()
            for x in range(0, int(self.max_x / self.column_width) ):
               self.scr.attrset(curses.A_NORMAL)
+              
               yp=y+self.win_y ; xp=x+self.win_x
               if len(self.data)<=yp: s=""
               elif len(self.data[yp])<=xp: s=""
               else: s=self.data[yp][xp]
+              
               s = string.ljust(s, 15)[0:15]
               if x==self.x and y==self.y: self.scr.attrset(curses.A_STANDOUT)
               self.scr.addstr(y+2, x*self.column_width, s)
@@ -151,9 +153,9 @@ class keyhandler:
 
     def action(self): 
        while (1): 
-          curses.echo()  
-          self.do_sheet() 
-          self.scr.keypad(1)            
+          curses.echo()            
+          self.scr.keypad(1) 
+          self.do_sheet()             
           stdscr.move(self.y+2, self.x*self.column_width)     # Move the cursor
           c=stdscr.getch()		# Get a keystroke
           if 0<c<256:           
@@ -163,9 +165,7 @@ class keyhandler:
               self.stuff += c 
               self.scr.addstr(y, x, str(self.stuff))               
               self.scr.refresh()             
-              #self.scr.addstr(y, x, str(self.stuff))               
-              #self.scr.refresh()             
-          # Cursor keys
+          # Arrow keys
           elif c==curses.KEY_UP:
               curses.noecho()               
               if self.win_y>0: self.win_y = self.win_y - 1

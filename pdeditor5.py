@@ -1,79 +1,21 @@
 
 
-#  pdspread.py 
-#  A simple spreadsheet.  
+#  pdeditor.py 
+#  A small and simple text editor. 
 
 #  This code is released to the public domain.  
 
-import sys, re, math, curses, curses.ascii, traceback, string, os 
+import sys, math, curses, curses.ascii, traceback, string, os 
    
-# Helper functions to convert y,x coords to a column, row reference 
-# and vice-versa. 
-def yx2str(y,x):
-    "Convert a coordinate pair like 1,26 to AA2"
-    if x<26: s=chr(65+x)
-    else:
-	x=x-26
-	s=chr(65+ (x/26) ) + chr(65+ (x%26) )
-    s=s+str(y+1)
-    return s
-
-coord_pat = re.compile('^(?P<x>[a-zA-Z]{1,2})(?P<y>\d+)$')
-
-def str2yx(s):
-    "Convert a string like A1 to a coordinate pair like 0,0"
-    match = coord_pat.match(s)
-    if not match: return None
-    y,x = match.group('y', 'x')
-    x = string.upper(x)
-    if len(x)==1: x=ord(x)-65
-    else:
-	x= (ord(x[0])-65)*26 + ord(x[1])-65 + 26
-    return string.atoi(y)-1, x
-
-assert yx2str(0,0) == 'A1'
-assert yx2str(1,26) == 'AA2'
-assert str2yx('AA2') == (1,26)
-assert str2yx('B2') == (1,1)
-   
-   
-class address(object):
-   def __init__(self):
-      (y, x) = self.scr.getyx() 
-      self.address = yx2str(y + self.win_y, x+self.win_x)      
-      
-#  A cell class. 
-class cell(address): 
-   def __init__(self):       
-      # The width of a column     
-      self.width = 15     
-      # A dict to store data in  
-      self.celldata = {}            
-      
-      # A cell will have a dict to store its contents. This includes 
-      # ordinary data, formulas, cell names.  
-      self.celldata.update({address: None})   
-   
-   # Add data to a cell    
-   def update(self, data):                
-      self.celldata.update({self.address: data})   
-   
-   # Remove all data from a cell 
-   def clear(self): 
-      self.celldata.update({self.address: None})  
-      
-      
-      
-#  A spreadsheet class. This class also handles keystrokes  
-class sheet(cell):
-    def init(self, scr): 
+#  A class to handle keystrokes  
+class keyhandler:
+    def __init__(self, scr): 
        self.scr = scr                       
        # Dictionary to store our data in.   
        self.data = {}           
        self.indexlist = [] 
        self.linelist = []            
-       self.stuff = ""    
-       
+       self.stuff = ""        
        # A variable to save the line-number of text. 
        self.win_y = self.win_x = 0  
        # The screen size (number of rows and columns). 
@@ -89,7 +31,8 @@ class sheet(cell):
        self.macrotext = ""
        self.cursorposlist = [] 
        self.macrolist = []
-                                            
+       
+                                     
        curses.noecho() 
        self.scr.keypad(1)            
        self.scr.scrollok(1)
@@ -560,19 +503,24 @@ class sheet(cell):
              self.deleteline()              
              self.scr.refresh()  
           elif c==curses.KEY_F4: 
-             pass              
+             pass 
+             
              '''(y, x) = self.scr.getyx()   
              self.scr.addstr(y, x, "You pressed F4!" )               
              self.scr.refresh() '''  
           elif c==curses.KEY_F5: 
              self.macro()               
-          elif c==curses.KEY_F6:           
+          elif c==curses.KEY_F6: 
+          
              pass 
              #self.displaylists() 
-          elif c==curses.KEY_F7:           
+          elif c==curses.KEY_F7: 
+          
              pass
              #self.displaydict() 
-          elif c==curses.KEY_F8:                     
+          elif c==curses.KEY_F8: 
+          
+          
              pass         
              #self.open("test.txt")              
           elif c==curses.KEY_F9: 
@@ -580,7 +528,8 @@ class sheet(cell):
           elif c==curses.KEY_F12: 
              (y, x) = self.scr.getyx()   
              self.scr.addstr(y, x, "You pressed F12!" )               
-             self.scr.refresh()                                                          
+             self.scr.refresh()                                
+                          
           # If the terminal window is resized, take some action 
           elif c==curses.KEY_RESIZE:              
              (y, x) = self.scr.getyx()  
@@ -610,8 +559,7 @@ class sheet(cell):
                           
 #  Main loop       
 def main(stdscr):  
-    a = sheet()      
-    a.init(stdscr) 
+    a = keyhandler(stdscr)      
     a.action() 
                                    
 #  Run the code from the command-line 

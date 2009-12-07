@@ -17,7 +17,15 @@ def yx2str(y,x):
 	s=chr(65+ (x/26) ) + chr(65+ (x%26) )
     s=s+str(y+1)
     return s
-
+    
+def x2str(x, width): 
+    myval = int(x/width) 
+    if myval<26: s=chr(66+myval)
+    else:
+	myval=myval-26
+    s=str(myval)
+    return s     
+    
 coord_pat = re.compile('^(?P<x>[a-zA-Z]{1,2})(?P<y>\d+)$')
 
 def str2yx(s):
@@ -102,14 +110,13 @@ class sheet(object):
      
     def headings(self): 
        (y, x) = self.scr.getyx() 
-       for x in range(0, self.max_x-1, self.width): 
-          self.colhead = yx2str(0, x) 
-          self.addspace = int(self.width/2) 
-          self.scr.addstr(0, x, str(self.colhead), curses.A_STANDOUT) 
+       for x in range(7, self.max_x-1, self.width): 
+          self.colhead = x2str(x, self.width)           
+          self.scr.addstr(2, x, str(self.colhead), curses.A_STANDOUT) 
           self.scr.refresh() 
           
-       for y in range(0, self.max_y-1): 
-          self.colhead = y 
+       for y in range(3, self.max_y-1): 
+          self.colhead = y-2 
           self.scr.addstr(y, 0, str(self.colhead), curses.A_STANDOUT) 
           self.scr.refresh()    
             

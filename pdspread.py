@@ -81,7 +81,7 @@ class sheet(object):
           self.rowhead = y-2 
           self.scr.addstr(y, 0, str(self.rowhead), curses.A_STANDOUT)           
           self.scr.refresh()    
-       self.scr.move(4, 3)                     
+       self.scr.move(3, 1)                     
        self.scr.refresh()                                                                                                                                                  
        curses.noecho() 
        self.scr.keypad(1)            
@@ -119,10 +119,16 @@ class sheet(object):
        self.cursorpos = (y, x)    
        self.mycursor = " " * self.width 
        self.scr.move(y, x)
-       self.scr.addstr(y, 0, str(self.mycursor), curses.A_STANDOUT)  
+       self.scr.addstr(y, x, str(self.mycursor), curses.A_STANDOUT)  
        self.scr.move(y, x)
        self.scr.refresh()                               
        
+    def cursormove(self, myy, myx): 
+       (y, x) = self.scr.getyx() 
+       self.scr.move(myy, myx)  
+       self.cursor() 
+       
+                 
                                                          
     def set_y(self, val): 
        (y, x) = self.scr.getyx() 
@@ -525,11 +531,11 @@ class sheet(object):
              self.scr.refresh()                                         
           elif c==curses.KEY_UP:  
              curses.noecho()                
-             if y > 0:                                   
+             if y > 0:                 
                 self.scr.move(y-1, x)                    
                 self.set_y(-1)                   
              elif y == 0 and self.win_y > 0:   
-                self.scr.scroll(-1)   
+                self.scr.scroll(-1)                   
                 self.scr.move(y, x)  
                 self.set_y(-1) 
                 self.retrievedata(self.win_y) 
@@ -540,11 +546,11 @@ class sheet(object):
              self.scr.refresh()
           elif c==curses.KEY_DOWN:
              curses.noecho()              
-             if y < self.max_y-1:                 
+             if y < self.max_y-1:                    
                 self.scr.move(y+1, x)   
                 self.set_y(1)                                                               
              else:                                          
-                self.scr.scroll(1)                 
+                self.scr.scroll(1)                                 
                 self.scr.move(y, x)  
                 self.set_y(1) 
                 self.retrievedata(self.win_y) 
@@ -553,15 +559,15 @@ class sheet(object):
              self.scr.refresh()   
           elif c==curses.KEY_LEFT: 
              curses.noecho()  
-             if x > 0: 
-                self.scr.move(y, x-1) 
+             if x > self.width + 1:                 
+                self.scr.move(y, x-self.width) 
              else: 
                 pass 
              self.scr.refresh()
           elif c==curses.KEY_RIGHT: 
              curses.noecho() 
-             if x < self.max_x-1:
-                self.scr.move(y, x+1) 
+             if x < self.max_x-self.width-1:                 
+                self.scr.move(y, x+self.width) 
              else: 
                 pass                 
              self.scr.refresh() 

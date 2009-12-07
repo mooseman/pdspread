@@ -83,17 +83,37 @@ class sheet(object):
        # A dict to store data in  
        self.celldata = {}            
       
+       self.cursor = " " * self.width 
        # A cell will have a dict to store its contents. This includes 
        # ordinary data, formulas, cell names.  
-       self.celldata.update({address: None})   
+       self.celldata.update({self.address: None})   
     # Add data to a cell    
     def update(self, data):                
        self.celldata.update({self.address: data})      
     # Remove all data from a cell 
     def clear(self): 
        self.celldata.update({self.address: None})  
-       
-                                 
+   
+    def cursor(self): 
+       (y, x) = self.scr.getyx() 
+       self.mycursor = " " * self.width 
+       self.scr.addstr(y, x, self.mycursor, curses.A_STANDOUT)
+       self.scr.refresh() 
+     
+    def headings(self): 
+       (y, x) = self.scr.getyx() 
+       for x in range(0, self.max_x-1, self.width): 
+          self.colhead = yx2str(0, x) 
+          self.addspace = int(self.width/2) 
+          self.scr.addstr(0, x, str(self.colhead), curses.A_STANDOUT) 
+          self.scr.refresh() 
+          
+       for y in range(0, self.max_y-1): 
+          self.colhead = y 
+          self.scr.addstr(y, 0, str(self.colhead), curses.A_STANDOUT) 
+          self.scr.refresh()    
+            
+                                            
     def set_y(self, val): 
        (y, x) = self.scr.getyx() 
        self.win_y += val 
@@ -463,6 +483,8 @@ class sheet(object):
                                                                                                                                                                              
     def action(self):  
        while (1): 
+          self.cell() 
+          self.headings() 
           curses.echo()                 
           (y, x) = self.scr.getyx()   
           c=self.scr.getch()		# Get a keystroke    

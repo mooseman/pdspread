@@ -51,7 +51,8 @@ class sheet(object):
        self.indexlist = [] 
        self.linelist = []            
        self.stuff = ""   
-       self.width = 15         
+       self.width = 15    
+       self.cursor = " " * self.width                    
        
        # A variable to save the line-number of text. 
        self.win_y = self.win_x = 0  
@@ -115,21 +116,28 @@ class sheet(object):
        self.celldata.update({self.address: None})     
        
     def cursor(self): 
-       (y, x) = self.scr.getyx() 
-       self.cursorpos = (y, x)    
-       self.mycursor = " " * self.width 
-       self.scr.move(y, x)
-       self.scr.addstr(y, x, str(self.mycursor), curses.A_STANDOUT)  
-       self.scr.move(y, x)
+       (y, x) = self.scr.getyx()        
+       self.mycursor = " " * self.width        
+       self.scr.addstr(y, x, str(self.mycursor), curses.A_STANDOUT)         
        self.scr.refresh()                               
        
-    def cursormove(self, myy, myx): 
+    def move(self, myy, myx): 
+       self.cursor = ""
        (y, x) = self.scr.getyx() 
+       if x > self.width+1:       
+          self.scr.addstr(y, x-self.width, str(" " * self.width), curses.A_NORMAL)  
+       else: 
+          self.scr.addstr(y, 0, str(" " * self.width), curses.A_NORMAL)               
+       self.scr.refresh() 
+                                     
        self.scr.move(myy, myx)  
-       self.cursor() 
-       
-                 
-                                                         
+       (y, x) = self.scr.getyx() 
+       if x > self.width+1:
+          self.scr.addstr(y, x-self.width, str(" " * self.width), curses.A_STANDOUT)  
+       else:    
+          self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)  
+       self.scr.refresh()                        
+                                                                     
     def set_y(self, val): 
        (y, x) = self.scr.getyx() 
        self.win_y += val 
@@ -499,8 +507,7 @@ class sheet(object):
                                                                                                                                                                              
     def action(self):  
        while (1): 
-          (y, x) = self.scr.getyx()   
-          self.cursor() 
+          (y, x) = self.scr.getyx()             
           #self.scr.addstr(y, x, str(self.cursor), curses.A_STANDOUT)                         
           curses.echo()                           
           c=self.scr.getch()		# Get a keystroke    
@@ -532,11 +539,11 @@ class sheet(object):
           elif c==curses.KEY_UP:  
              curses.noecho()                
              if y > 0:                 
-                self.scr.move(y-1, x)                    
+                self.move(y-1, x)                    
                 self.set_y(-1)                   
              elif y == 0 and self.win_y > 0:   
                 self.scr.scroll(-1)                   
-                self.scr.move(y, x)  
+                self.move(y, x)  
                 self.set_y(-1) 
                 self.retrievedata(self.win_y) 
                 self.pointtotopline(-1)   
@@ -545,13 +552,15 @@ class sheet(object):
                 pass                                                                                     
              self.scr.refresh()
           elif c==curses.KEY_DOWN:
-             curses.noecho()              
+             curses.noecho()   
+             (y, x) = self.scr.getyx()           
              if y < self.max_y-1:                    
-                self.scr.move(y+1, x)   
-                self.set_y(1)                                                               
+                self.move(y+1, x)   
+                self.set_y(1) 
+                self.scr.refresh()                                                                 
              else:                                          
                 self.scr.scroll(1)                                 
-                self.scr.move(y, x)  
+                self.move(y, x)  
                 self.set_y(1) 
                 self.retrievedata(self.win_y) 
                 self.pointtotopline(1) 
@@ -560,14 +569,14 @@ class sheet(object):
           elif c==curses.KEY_LEFT: 
              curses.noecho()  
              if x > self.width + 1:                 
-                self.scr.move(y, x-self.width) 
+                self.move(y, x-self.width) 
              else: 
                 pass 
              self.scr.refresh()
           elif c==curses.KEY_RIGHT: 
              curses.noecho() 
              if x < self.max_x-self.width-1:                 
-                self.scr.move(y, x+self.width) 
+                self.move(y, x+self.width) 
              else: 
                 pass                 
              self.scr.refresh() 

@@ -49,9 +49,11 @@ class sheet(object):
        # Dictionary to store our data in.   
        self.data = {}           
        self.indexlist = [] 
-       self.linelist = []            
+       self.linelist = [] 
+       self.rowheadlist = []
+       self.colheadlist = []                   
        self.stuff = ""   
-       self.width = 15  
+       self.width = 7  
        self.cursor = " " * self.width               
        
        # A variable to save the line-number of text. 
@@ -62,16 +64,18 @@ class sheet(object):
        # Set up row and column headings 
        (y, x) = self.scr.getyx() 
        # Column headings 
-       for x in range(7, self.max_x-1, self.width): 
-          self.colhead = x2str(x, self.width)           
-          self.scr.addstr(2, x, str(self.colhead), curses.A_STANDOUT) 
+       for x in range(7, self.max_x-self.width, self.width): 
+          self.colhead = x2str(x-6, self.width).center(self.width)   
+          self.colheadlist.append(self.colhead)        
+          self.scr.addstr(1, x, str(self.colhead), curses.A_STANDOUT) 
           self.scr.refresh() 
        # Row headings    
        for y in range(3, self.max_y-1): 
-          self.rowhead = y-2 
+          self.rowhead = str(y-2).center(self.width)    
+          self.rowheadlist.append(self.rowhead)        
           self.scr.addstr(y, 0, str(self.rowhead), curses.A_STANDOUT)           
           self.scr.refresh()    
-       self.scr.move(3, 1)                     
+       self.scr.move(3, 10)                     
        self.scr.refresh()                                                                                                                                                  
        curses.noecho() 
        self.scr.keypad(1)            
@@ -96,6 +100,10 @@ class sheet(object):
        else:    
           self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)  
        self.scr.refresh()                               
+       
+    def highlight(self): 
+       (y, x) = self.scr.getyx()  
+          
        
     def newmove(self, source, target): 
        (y, x) = self.scr.getyx()   

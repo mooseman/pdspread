@@ -20,10 +20,7 @@ def yx2str(y,x):
     
 def x2str(x, width): 
     myval = int(x/width) 
-    if myval<26: s=chr(66+myval)
-    else:
-	myval=myval-26
-    s=str(myval)
+    s=chr(65+myval)    
     return s     
     
 coord_pat = re.compile('^(?P<x>[a-zA-Z]{1,2})(?P<y>\d+)$')

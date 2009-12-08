@@ -9,13 +9,13 @@ import sys, re, math, curses, curses.ascii, traceback, string, os
    
 # Helper functions to convert y,x coords to a column, row reference 
 # and vice-versa. 
-def yx2str(y,x):
+def yx2str(y,x, width):
     "Convert a coordinate pair like 1,26 to AA2"
-    if x<26: s=chr(65+x)
+    if int(x/width)<26: s=chr(65+int(x/width)-2)
     else:
 	x=x-26
 	s=chr(65+ (x/26) ) + chr(65+ (x%26) )
-    s=s+str(y+1)
+    s=s+str(y-1)
     return s
     
 def x2str(x, width): 
@@ -36,10 +36,10 @@ def str2yx(s):
 	x= (ord(x[0])-65)*26 + ord(x[1])-65 + 26
     return string.atoi(y)-1, x
 
-assert yx2str(0,0) == 'A1'
-assert yx2str(1,26) == 'AA2'
-assert str2yx('AA2') == (1,26)
-assert str2yx('B2') == (1,1)
+#assert yx2str(2,1,7) == 'A1'
+#assert yx2str(3,27,7) == 'D2'
+#assert str2yx('AA2') == (1,26)
+#assert str2yx('B2') == (1,1)
    
          
 #  A spreadsheet class. This class also handles keystrokes  
@@ -68,16 +68,31 @@ class sheet(object):
           self.colhead = x2str(x-7, self.width).center(self.width)   
           self.colheadlist.append(self.colhead)        
           self.scr.addstr(1, x, str(self.colhead), curses.A_STANDOUT) 
+          (y, x) = self.scr.getyx() 
+          self.cell = yx2str(y, x, self.width) 
+          self.data.update({self.cell: [self.cell, None, None, None, None]}) 
           self.scr.refresh() 
        # Row headings    
        for y in range(2, self.max_y-1): 
           self.rowhead = str(y-1).center(self.width)    
           self.rowheadlist.append(self.rowhead)        
-          self.scr.addstr(y, 1, str(self.rowhead), curses.A_STANDOUT)           
+          self.scr.addstr(y, 1, str(self.rowhead), curses.A_STANDOUT) 
+          (y, x) = self.scr.getyx() 
+          self.cell = yx2str(y, x, self.width) 
+          self.data.update({self.cell: [self.cell, None, None, None, None]})                     
           self.scr.refresh()    
+          
+       # Add the cells in the body of the table to the dict 
+       for a,b in zip(self.colheadlist, self.rowheadlist): 
+          self.cellname = str(a+b)
+          self.data.update({self.cellname: [self.cellname, None, None, None, None]})                        
+          
+          
        self.scr.move(2, 8) 
        (y, x) = self.scr.getyx() 
-       self.scr.addstr(y, x, str(self.cursor), curses.A_STANDOUT)          
+       self.scr.addstr(y, x, str(self.cursor), curses.A_STANDOUT)   
+       # Move cursor to start of cell. 
+       #self.scr.move(2, 10) 
        self.scr.refresh()                                                                                                                                                  
        curses.noecho() 
        self.scr.keypad(1)            
@@ -161,7 +176,16 @@ class sheet(object):
           elif c==curses.KEY_END: 
              curses.noecho() 
              self.scr.move(y, 79) 
-             self.scr.refresh()                                                            
+             self.scr.refresh()  
+          elif c==curses.KEY_F5: 
+             (y, x) = self.scr.getyx() 
+             self.test = yx2str(y, x, self.width) 
+             if self.data.has_key(self.test): 
+                self.val = self.data[self.test]
+                self.scr.addstr(y, x, str(self.val))        
+             else: 
+                self.scr.addstr(y, x, str("Sorry!"))                    
+             self.scr.refresh()                                                           
           # Ctrl-G quits the app                  
           elif c==curses.ascii.BEL: 
              break      

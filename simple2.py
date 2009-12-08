@@ -68,20 +68,33 @@ class sheet(object):
        self.win_y = self.win_x = 0  
        # The screen size (number of rows and columns). 
        (self.max_y, self.max_x) = self.scr.getmaxyx()
+          
                         
        # Set up row and column headings 
        (y, x) = self.scr.getyx() 
        # Column headings 
+       for a,b in zip(range(1, self.max_x-self.width, self.width),
+          range(1, self.max_y-1)): 
+             self.colheadname = x2str(a-7, self.width) 
+             self.colhead = x2str(a-7, self.width).center(self.width)   
+             self.colheadlist.append(self.colhead)    
+             self.colheadnames.append(self.colheadname)          
+             self.rowheadname = str(b-1)
+             self.rowhead = str(b-1).center(self.width)    
+             self.rowheadlist.append(self.rowhead)        
+             self.rowheadnames.append(self.rowheadname)         
+             self.cell = yx2str(b, a, self.width) 
+             self.data.update({self.cell: [self.cell, None, None, None, None]}) 
+                                 
        for x in range(8, self.max_x-self.width, self.width): 
           self.colheadname = x2str(x-7, self.width)
           self.colhead = x2str(x-7, self.width).center(self.width)   
           self.colheadlist.append(self.colhead)    
           self.colheadnames.append(self.colheadname)        
           self.scr.addstr(1, x, str(self.colhead), curses.A_STANDOUT) 
-          (y, x) = self.scr.getyx() 
-          self.cell = yx2str(y, x, self.width) 
-          self.data.update({self.cell: [self.cell, None, None, None, None]}) 
+          (y, x) = self.scr.getyx()           
           self.scr.refresh() 
+                              
        # Row headings    
        for y in range(2, self.max_y-1): 
           self.rowheadname = str(y-1)
@@ -92,12 +105,7 @@ class sheet(object):
           (y, x) = self.scr.getyx() 
           self.cell = yx2str(y, x, self.width) 
           self.data.update({self.cell: [self.cell, None, None, None, None]})                     
-          self.scr.refresh()    
-          
-       # Add the cells in the body of the table to the dict 
-       for a,b in zip(self.colheadnames, self.rowheadnames): 
-          self.cellname = str(a+b)
-          self.data.update({self.cellname: [self.cellname, None, None, None, None]})                        
+          self.scr.refresh()                                         
                     
        self.scr.move(2, 8) 
        (y, x) = self.scr.getyx() 
@@ -129,15 +137,12 @@ class sheet(object):
           self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)         
        self.scr.refresh()                               
        
-    def highlight(self): 
+    def test(self): 
        (y, x) = self.scr.getyx()  
-          
-       
-    def newmove(self, source, target): 
-       (y, x) = self.scr.getyx()   
-       source = yx2str(y, x) 
-          
-       
+       for k, v in self.data.items(): 
+          self.scr.addstr(y, x, str( str(k) + " " + str(v) ) )          
+       self.scr.refresh()                                  
+              
                                                                                                                                                                                                                              
     def action(self):  
        while (1): 
@@ -199,11 +204,7 @@ class sheet(object):
              self.scr.addstr(y, x, str(self.rowheadnames))                     
              self.scr.refresh()  
           elif c==curses.KEY_F7: 
-             (y, x) = self.scr.getyx() 
-             self.test = yx2str(y, x, self.width) 
-             for k in self.data.keys(): 
-                self.scr.addstr(y, x, str(k))                     
-             self.scr.refresh()                                                                                                                             
+             self.test()                    
           # Ctrl-G quits the app                  
           elif c==curses.ascii.BEL: 
              break      

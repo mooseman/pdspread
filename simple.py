@@ -64,18 +64,20 @@ class sheet(object):
        # Set up row and column headings 
        (y, x) = self.scr.getyx() 
        # Column headings 
-       for x in range(7, self.max_x-self.width, self.width): 
-          self.colhead = x2str(x-6, self.width).center(self.width)   
+       for x in range(8, self.max_x-self.width, self.width): 
+          self.colhead = x2str(x-7, self.width).center(self.width)   
           self.colheadlist.append(self.colhead)        
           self.scr.addstr(1, x, str(self.colhead), curses.A_STANDOUT) 
           self.scr.refresh() 
        # Row headings    
-       for y in range(3, self.max_y-1): 
-          self.rowhead = str(y-2).center(self.width)    
+       for y in range(2, self.max_y-1): 
+          self.rowhead = str(y-1).center(self.width)    
           self.rowheadlist.append(self.rowhead)        
-          self.scr.addstr(y, 0, str(self.rowhead), curses.A_STANDOUT)           
+          self.scr.addstr(y, 1, str(self.rowhead), curses.A_STANDOUT)           
           self.scr.refresh()    
-       self.scr.move(3, 10)                     
+       self.scr.move(2, 8) 
+       (y, x) = self.scr.getyx() 
+       self.scr.addstr(y, x, str(self.cursor), curses.A_STANDOUT)          
        self.scr.refresh()                                                                                                                                                  
        curses.noecho() 
        self.scr.keypad(1)            
@@ -98,7 +100,7 @@ class sheet(object):
        if x > self.width+1:
           self.scr.addstr(y, x-self.width, str(" " * self.width), curses.A_STANDOUT)  
        else:    
-          self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)  
+          self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)         
        self.scr.refresh()                               
        
     def highlight(self): 
@@ -113,8 +115,7 @@ class sheet(object):
                                                                                                                                                                                                                              
     def action(self):  
        while (1): 
-          (y, x) = self.scr.getyx()             
-          #self.scr.addstr(y, x, str(self.cursor), curses.A_STANDOUT)                         
+          (y, x) = self.scr.getyx()                       
           curses.echo()                           
           c=self.scr.getch()		# Get a keystroke                                                                                  
           if c in (curses.KEY_ENTER, 10):  

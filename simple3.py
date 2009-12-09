@@ -5,17 +5,17 @@
 
 #  This code is released to the public domain.  
 
-import sys, re, math, curses, curses.ascii, traceback, string, os 
+import sys, re, itertools, math, curses, curses.ascii, traceback, string, os 
    
 # Helper functions to convert y,x coords to a column, row reference 
 # and vice-versa. 
 def yx2str(y,x, width):
     "Convert a coordinate pair like 1,26 to AA2"
-    if int(x/width)<26: s=chr(65+int(x/width)-2)
+    if int(x/width)<26: s=chr(65+int(x/width))
     else:
 	x=x-26
 	s=chr(65+ (x/26) ) + chr(65+ (x%26) )
-    s=s+str(y-1)
+    s=s+str(y)
     return s
     
 def x2str(x, width): 
@@ -47,6 +47,8 @@ class sheet(object):
     def __init__(self, scr): 
        self.scr = scr                       
        # Dictionary to store our data in.   
+       self.biglist = [] 
+       
        self.data = {}           
        self.indexlist = [] 
        self.linelist = [] 
@@ -69,23 +71,20 @@ class sheet(object):
        # The screen size (number of rows and columns). 
        (self.max_y, self.max_x) = self.scr.getmaxyx()
           
-                        
-       # Set up row and column headings 
-       (y, x) = self.scr.getyx() 
-       # Column headings 
-       for a,b in zip(range(1, self.max_x-self.width, self.width),
-          range(1, self.max_y-1)): 
-             self.colheadname = x2str(a-7, self.width) 
-             self.colhead = x2str(a-7, self.width).center(self.width)   
-             self.colheadlist.append(self.colhead)    
-             self.colheadnames.append(self.colheadname)          
-             self.rowheadname = str(b-1)
-             self.rowhead = str(b-1).center(self.width)    
-             self.rowheadlist.append(self.rowhead)        
-             self.rowheadnames.append(self.rowheadname)         
-             self.cell = yx2str(b, a, self.width) 
-             self.data.update({self.cell: [self.cell, None, None, None, None]}) 
-                                 
+       for x in range(1, self.max_x-self.width, self.width): 
+          self.colheadname = x2str(x, self.width) 
+          self.colheadnames.append(self.colheadname)         
+       for y in range(1, self.max_y-1): 
+          self.rowheadname = str(y) 
+          self.rowheadnames.append(self.rowheadname)            
+       for c in list(itertools.product(self.colheadnames, self.rowheadnames)): 
+          d = str(c[0]+c[1]) 
+          self.biglist.append(d)
+       for d in self.biglist:    
+          self.data.update({d: [d, None, None, None, 
+                    None, None, None]})               
+          
+                                                                                 
        for x in range(8, self.max_x-self.width, self.width): 
           self.colheadname = x2str(x-7, self.width)
           self.colhead = x2str(x-7, self.width).center(self.width)   
@@ -139,10 +138,22 @@ class sheet(object):
        
     def test(self): 
        (y, x) = self.scr.getyx()  
-       for k, v in self.data.items(): 
-          self.scr.addstr(y, x, str( str(k) + " " + str(v) ) )          
-       self.scr.refresh()                                  
+       #for k, v in self.data.items(): 
+       for a in self.biglist: 
+          self.scr.addstr(y, x, str(a) )  
+          y + 1  
+          (y, x) = self.scr.getyx()        
+          self.scr.refresh()                                  
               
+    def test2(self): 
+       (y, x) = self.scr.getyx()  
+       for k in self.data.keys(): 
+       #for k, v in self.data.items(): 
+          self.scr.addstr(y, x, str(k) )  
+          y + 1  
+          (y, x) = self.scr.getyx()        
+          self.scr.refresh()                                  
+                                             
                                                                                                                                                                                                                              
     def action(self):  
        while (1): 
@@ -204,7 +215,8 @@ class sheet(object):
              self.scr.addstr(y, x, str(self.rowheadnames))                     
              self.scr.refresh()  
           elif c==curses.KEY_F7: 
-             self.test()                    
+             #self.test() 
+             self.test2()                    
           # Ctrl-G quits the app                  
           elif c==curses.ascii.BEL: 
              break      

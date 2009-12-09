@@ -59,6 +59,8 @@ def str2yx(s):
 # >>> d["foo"][1]
 # 17
 
+# NOTE! THE WINDOW.CHGAT FUNCTION IS EXTREMNELY USEFUL. IT APPLIES AN 
+# ATTRIBUTE TO A SELECTED RANGE OF CELLS!  
                   
 #  A spreadsheet class. This class also handles keystrokes  
 class sheet(object):
@@ -132,9 +134,9 @@ class sheet(object):
           self.data.update({self.cell: [self.cell, None, None, None, None]})            
           self.scr.refresh()                                         
                     
-       self.scr.move(2, 8) 
+       self.scr.move(2, 20) 
        (y, x) = self.scr.getyx() 
-       self.scr.addstr(y, x, str(self.cursor), curses.A_STANDOUT)   
+       self.scr.chgat(y, x, self.width, curses.A_STANDOUT)                      
        # Move cursor to start of cell. 
        #self.scr.move(2, 10) 
        self.scr.refresh()                                                                                                                                                  
@@ -144,22 +146,23 @@ class sheet(object):
        self.scr.idlok(1)  
        self.scr.setscrreg(0, self.max_y-1)                                
        self.scr.refresh()	    
-           
-    def move(self, myy, myx): 
-       self.cursor = ""
+          
+    # This function moves the cell highlight. It restores the old cell 
+    # to "normal" background, and highlights the new cell.             
+    def move(self, myy, myx):        
        (y, x) = self.scr.getyx() 
-       if x > self.width+1:       
-          self.scr.addstr(y, x-self.width, str(" " * self.width), curses.A_NORMAL)  
+       if x > self.width+1:   
+          self.scr.chgat(y, x, self.width, curses.A_NORMAL)               
        else: 
-          self.scr.addstr(y, 0, str(" " * self.width), curses.A_NORMAL)                      
+          self.scr.chgat(y, 0, self.width, curses.A_NORMAL)                      
        self.scr.refresh() 
                                      
        self.scr.move(myy, myx)  
        (y, x) = self.scr.getyx() 
        if x > self.width+1:
-          self.scr.addstr(y, x-self.width, str(" " * self.width), curses.A_STANDOUT)  
+          self.scr.chgat(y, x, self.width, curses.A_STANDOUT)               
        else:    
-          self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)        
+          self.scr.chgat(y, 0, self.width, curses.A_STANDOUT)               
        self.scr.refresh()                               
        
        
@@ -200,18 +203,15 @@ class sheet(object):
        (y, x) = self.scr.getyx()    
        #self.width = 20                   
        self.posname = yx2str(y, x, self.width) 
-       self.cursorstart = (y, x) 
-       self.cursorend = (y, x+self.width)
-       self.scr.attrset(curses.A_STANDOUT) 
-       self.mydata = 123 
-       if type(self.mydata) != "NoneType": 
-          if type(self.mydata) == "IntType": 
-             foo = str(self.mydata)             
-          elif type(self.mydata) == "StringType":  
-             foo = self.mydata.center(self.width)       
-       self.attr = curses.A_REVERSE 
-       self.scr.addstr(y, x, str(foo))        
+       # Try window.chgat([y, x][, num], attr) 
+       # THIS WORKS!! IT HIGHLIGHTS (OR PUTS BACK TO NORMAL) 
+       # A SELECTED AREA!  
+       self.scr.chgat(y, x, 10, curses.A_STANDOUT) 
        self.scr.refresh()  
+       #self.cursorend = (y, x+self.width)
+       #self.thiscell.attrset(curses.A_STANDOUT) 
+       #self.mydata = 123        
+       #self.scr.refresh()  
          
                                                                                                                                                                                                                              
     def action(self):  

@@ -198,8 +198,8 @@ class sheet(object):
        (y, x) = self.scr.getyx()                       
        self.scr.addstr(0, 0, yx2str(y, x, curses.A_REVERSE) )         
                                              
-    def mycell(self): 
-       self.scr.move(10, 40)  
+    def putdata(self, myy, myx, mydata):     
+       self.scr.move(myy, myx)  
        (y, x) = self.scr.getyx()    
        #self.width = 20                   
        self.posname = yx2str(y, x, self.width) 
@@ -207,6 +207,8 @@ class sheet(object):
        # THIS WORKS!! IT HIGHLIGHTS (OR PUTS BACK TO NORMAL) 
        # A SELECTED AREA!  
        self.scr.chgat(y, x, 10, curses.A_STANDOUT) 
+       self.mydata = mydata        
+       self.scr.addstr(y, x, str(self.mydata) )         
        self.scr.refresh()  
        #self.cursorend = (y, x+self.width)
        #self.thiscell.attrset(curses.A_STANDOUT) 
@@ -276,7 +278,7 @@ class sheet(object):
           elif c==curses.KEY_F7: 
              self.test() 
           elif c==curses.KEY_F8: 
-             self.mycell()    
+             self.putdata(10, 30, "This is a test!")    
              
              
              #self.test2()                    

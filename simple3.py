@@ -5,7 +5,7 @@
 
 #  This code is released to the public domain.  
 
-import sys, re, itertools, math, curses, curses.ascii, traceback, string, os 
+import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    
 # Helper functions to convert y,x coords to a column, row reference 
 # and vice-versa. 
@@ -18,6 +18,13 @@ def yx2str(y,x, width):
     s=s+str(y)
     return s
     
+def colnum2str(x): 
+    if x<26: s=chr(65+x)
+    else:
+	x=x-26
+	s=chr(65+ (x/26) ) + chr(65+ (x%26) )    
+    return s    
+        
 def x2str(x, width): 
     myval = int(x/width) 
     s=chr(65+myval)    
@@ -40,8 +47,19 @@ def str2yx(s):
 #assert yx2str(3,27,7) == 'D2'
 #assert str2yx('AA2') == (1,26)
 #assert str2yx('B2') == (1,1)
+  
    
-         
+# This code snippet will help in getting the data storage set up.          
+# >>> d = {"foo": [43, 17, 68],  "bar": ["test", "this", "stuff"], 
+#   "baz": [98, 123, 892, 50]}
+# >>> d["foo"]
+# [43, 17, 68]
+# >>> d["foo"][0]
+# 43
+# >>> d["foo"][1]
+# 17
+
+                  
 #  A spreadsheet class. This class also handles keystrokes  
 class sheet(object):
     def __init__(self, scr): 
@@ -71,10 +89,18 @@ class sheet(object):
        # The screen size (number of rows and columns). 
        (self.max_y, self.max_x) = self.scr.getmaxyx()
           
-       for x in range(1, self.max_x-self.width, self.width): 
-          self.colheadname = x2str(x, self.width) 
+       # calculate the number of columns 
+       # We subtract self.width to cater for the width of the row headings
+       self.numcols = int((self.max_x-self.width)/self.width)   
+          
+       #for x in range(1, self.max_x-self.width, self.width): 
+       for x in range(0, self.numcols): 
+          #self.colheadname = x2str(x, self.width) 
+          self.colheadname = colnum2str(x) 
           self.colheadnames.append(self.colheadname)         
-       for y in range(1, self.max_y-1): 
+       # Start at 3 to make room for the edit line and cell highlight
+       # at the top of the screen.    
+       for y in range(1, self.max_y-2): 
           self.rowheadname = str(y) 
           self.rowheadnames.append(self.rowheadname)            
        for c in list(itertools.product(self.colheadnames, self.rowheadnames)): 
@@ -103,7 +129,7 @@ class sheet(object):
           self.scr.addstr(y, 1, str(self.rowhead), curses.A_STANDOUT) 
           (y, x) = self.scr.getyx() 
           self.cell = yx2str(y, x, self.width) 
-          self.data.update({self.cell: [self.cell, None, None, None, None]})                     
+          self.data.update({self.cell: [self.cell, None, None, None, None]})            
           self.scr.refresh()                                         
                     
        self.scr.move(2, 8) 
@@ -125,7 +151,7 @@ class sheet(object):
        if x > self.width+1:       
           self.scr.addstr(y, x-self.width, str(" " * self.width), curses.A_NORMAL)  
        else: 
-          self.scr.addstr(y, 0, str(" " * self.width), curses.A_NORMAL)               
+          self.scr.addstr(y, 0, str(" " * self.width), curses.A_NORMAL)                      
        self.scr.refresh() 
                                      
        self.scr.move(myy, myx)  
@@ -133,8 +159,19 @@ class sheet(object):
        if x > self.width+1:
           self.scr.addstr(y, x-self.width, str(" " * self.width), curses.A_STANDOUT)  
        else:    
-          self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)         
+          self.scr.addstr(y, 0, str(" " * self.width), curses.A_STANDOUT)        
        self.scr.refresh()                               
+       
+       
+    # Highlight the currently-active cell    
+    def highlight(self): 
+       (y, x) = self.scr.getyx() 
+       self.cursorstart = (y, x) 
+       self.cursorend = (y, x+self.width)
+       self.scr.attrset(curses.A_STANDOUT) 
+       self.scr.refresh()                               
+       #self.scr.addstr(y, x, str(" " * self.width), curses.A_STANDOUT)  
+                            
        
     def test(self): 
        (y, x) = self.scr.getyx()  
@@ -152,12 +189,34 @@ class sheet(object):
           self.scr.addstr(y, x, str(k) )  
           y + 1  
           (y, x) = self.scr.getyx()        
-          self.scr.refresh()                                  
+          self.scr.refresh()          
+          
+    def showpos(self): 
+       (y, x) = self.scr.getyx()                       
+       self.scr.addstr(0, 0, yx2str(y, x, curses.A_REVERSE) )         
                                              
+    def mycell(self): 
+       self.scr.move(10, 40)  
+       (y, x) = self.scr.getyx()    
+       #self.width = 20                   
+       self.posname = yx2str(y, x, self.width) 
+       self.cursorstart = (y, x) 
+       self.cursorend = (y, x+self.width)
+       self.scr.attrset(curses.A_STANDOUT) 
+       self.mydata = 123 
+       if type(self.mydata) != "NoneType": 
+          if type(self.mydata) == "IntType": 
+             foo = str(self.mydata)             
+          elif type(self.mydata) == "StringType":  
+             foo = self.mydata.center(self.width)       
+       self.attr = curses.A_REVERSE 
+       self.scr.addstr(y, x, str(foo))        
+       self.scr.refresh()  
+         
                                                                                                                                                                                                                              
     def action(self):  
        while (1): 
-          (y, x) = self.scr.getyx()                       
+          (y, x) = self.scr.getyx()            
           curses.echo()                           
           c=self.scr.getch()		# Get a keystroke                                                                                  
           if c in (curses.KEY_ENTER, 10):  
@@ -215,8 +274,12 @@ class sheet(object):
              self.scr.addstr(y, x, str(self.rowheadnames))                     
              self.scr.refresh()  
           elif c==curses.KEY_F7: 
-             #self.test() 
-             self.test2()                    
+             self.test() 
+          elif c==curses.KEY_F8: 
+             self.mycell()    
+             
+             
+             #self.test2()                    
           # Ctrl-G quits the app                  
           elif c==curses.ascii.BEL: 
              break      

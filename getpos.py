@@ -50,5 +50,15 @@ print str2yx("e7")
 print str2yx("h15") 
 #print str2yx("ad5") 
 
-        
+print x2str(0)  
+print x2str(1)
+print x2str(2) 
+print x2str(25)
+print x2str(26)
+print x2str(27)
+print x2str(51)
+print x2str(52)
+print x2str(53)
+      
+         
         

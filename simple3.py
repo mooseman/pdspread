@@ -3,6 +3,11 @@
 #  pdspread.py 
 #  A simple spreadsheet.  
 
+# Acknowledgement: This code would not have been possible without 
+# Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
+# that application is used here. Very many thanks to Andrew for 
+# doing that application!   
+
 #  This code is released to the public domain.  
 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
@@ -10,7 +15,7 @@ import sys, re, types, itertools, math, curses, curses.ascii, traceback, string,
 # Helper functions to convert y,x coords to a column, row reference 
 # and vice-versa. 
 def yx2str(y,x, width):
-    "Convert a coordinate pair like 1,26 to AA2"
+    "Convert a coordinate pair like 1,26 to AA2"    
     if int(x/width)<26: s=chr(65+int(x/width))
     else:
 	x=x-26
@@ -32,16 +37,41 @@ def x2str(x, width):
     
 coord_pat = re.compile('^(?P<x>[a-zA-Z]{1,2})(?P<y>\d+)$')
 
-def str2yx(s):
+
+# NOTE - We want to convert this function so that it can give a 
+# position for any cell reference. 
+# A sheet has columns with the properties of name, width and position. 
+# We also have values for numcols - this is the number of cols that can
+# be fitted onto the page, given their current width. 
+# It is the width of the screen divided by the default column width.
+
+# Each individual column can have a width associated with it. 
+# The position of a column can therefore be found like this - 
+
+# Col. A. Is *always* located at x=8. (Remember that the first few cols 
+# are needed for the row headings). It will have a width (which can very). 
+# So we have Col. A at x=8, and it has a width of (say) 7. 
+# Col. B will be at x=(8 plus the current width of col. A) So, col B 
+# will ALWAYS be at x=(8 plus width(column A). So, B is at 15 in this example. 
+# Col. C will ALWAYS be at x=(8 plus the current widths of 
+# cols. A and B)  
+# Col. D will be at x=(8 plus the current width of cols. A, B and C)  
+# .... and so on.  
+
+ 
+
+
+def str2yx(s):    
     "Convert a string like A1 to a coordinate pair like 0,0"
     match = coord_pat.match(s)
     if not match: return None
     y,x = match.group('y', 'x')
-    x = string.upper(x)
-    if len(x)==1: x=ord(x)-65
+    x = string.upper(x)    
+    if len(x)==1: x=ord(x)-65 
     else:
 	x= (ord(x[0])-65)*26 + ord(x[1])-65 + 26
     return string.atoi(y)-1, x
+
 
 #assert yx2str(2,1,7) == 'A1'
 #assert yx2str(3,27,7) == 'D2'
@@ -59,8 +89,8 @@ def str2yx(s):
 # >>> d["foo"][1]
 # 17
 
-# NOTE! THE WINDOW.CHGAT FUNCTION IS EXTREMNELY USEFUL. IT APPLIES AN 
-# ATTRIBUTE TO A SELECTED RANGE OF CELLS!  
+# NOTE! THE WINDOW.CHGAT FUNCTION IS EXTREMELY USEFUL. IT APPLIES AN 
+# ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
                   
 #  A spreadsheet class. This class also handles keystrokes  
 class sheet(object):
@@ -68,10 +98,23 @@ class sheet(object):
        self.scr = scr                       
        # Dictionary to store our data in.   
        self.biglist = [] 
-       
+       # The position of A1, the "origin". All cells are positioned with 
+       # reference to this. 
+       self.origin = (2,9)
+       # The position of the cell highlight. This is shown at the 
+       # top-left of the screen. 
+       self.width = 7  
+        
+       (y, x) = self.scr.getyx()           
+       self.pos = yx2str(y, x, self.width) 
+              
        self.data = {}           
        self.indexlist = [] 
        self.linelist = [] 
+       self.stuff = "" 
+       # The position list 
+       self.poslist = [] 
+       
        # These lists have the ACTUAL headings (which INCLUDE the 
        # spaces! ) 
        self.rowheadlist = []
@@ -82,10 +125,6 @@ class sheet(object):
        self.rowheadnames = []
        self.colheadnames = []
               
-       self.stuff = ""   
-       self.width = 7  
-       self.cursor = " " * self.width               
-       
        # A variable to save the line-number of text. 
        self.win_y = self.win_x = 0  
        # The screen size (number of rows and columns). 
@@ -107,7 +146,18 @@ class sheet(object):
           self.rowheadnames.append(self.rowheadname)            
        for c in list(itertools.product(self.colheadnames, self.rowheadnames)): 
           d = str(c[0]+c[1]) 
-          self.biglist.append(d)
+          self.biglist.append(d) 
+       # The dict holds the following data (in this order) - 
+       # Key - cell name 
+       # Values - cell name, cell (y,x) position, contents, value of contents 
+       # (for formulas - this is the formula value), format, colour, font, 
+       # font-size.    
+       # Position of cell A1 is at (2,9). We can move to other columns by
+       # moving by the width of the current column.
+       self.origin = (2,9)
+       
+       
+        
        for d in self.biglist:    
           self.data.update({d: [d, None, None, None, 
                     None, None, None]})               
@@ -132,9 +182,12 @@ class sheet(object):
           (y, x) = self.scr.getyx() 
           self.cell = yx2str(y, x, self.width) 
           self.data.update({self.cell: [self.cell, None, None, None, None]})            
+          
+          self.scr.addstr(0, 0, str(self.pos), curses.A_REVERSE)                    
           self.scr.refresh()                                         
-                    
-       self.scr.move(2, 20) 
+       
+       # Move to cell A1 - This is at (2, 9).                     
+       self.scr.move(2, 9) 
        (y, x) = self.scr.getyx() 
        self.scr.chgat(y, x, self.width, curses.A_STANDOUT)                      
        # Move cursor to start of cell. 
@@ -162,10 +215,12 @@ class sheet(object):
        if x > self.width+1:
           self.scr.chgat(y, x, self.width, curses.A_STANDOUT)               
        else:    
-          self.scr.chgat(y, 0, self.width, curses.A_STANDOUT)               
+          self.scr.chgat(y, 0, self.width, curses.A_STANDOUT)  
+       (y, x) = self.scr.getyx()    
+       self.scr.addstr(0, 0, yx2str(y, x, curses.A_REVERSE) )            
+       self.scr.move(myy, myx)  
        self.scr.refresh()                               
-       
-       
+              
     # Highlight the currently-active cell    
     def highlight(self): 
        (y, x) = self.scr.getyx() 
@@ -193,6 +248,12 @@ class sheet(object):
           y + 1  
           (y, x) = self.scr.getyx()        
           self.scr.refresh()          
+          
+    def test3(self): 
+       (y, x) = self.scr.getyx()  
+       mydata = str2yx("E12") 
+       self.scr.addstr(y, x, str(mydata) )  
+                           
           
     def showpos(self): 
        (y, x) = self.scr.getyx()                       
@@ -276,7 +337,7 @@ class sheet(object):
              self.scr.addstr(y, x, str(self.rowheadnames))                     
              self.scr.refresh()  
           elif c==curses.KEY_F7: 
-             self.test() 
+             self.test3() 
           elif c==curses.KEY_F8: 
              self.putdata(10, 30, "This is a test!")    
              

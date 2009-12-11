@@ -1,14 +1,15 @@
 
 ***  README *** 
 
- Inspired by "sc", this is the start of a Python spreadsheet using curses. 
+ Inspired by "sc" and Andrew M. Kuchling's excellent "tabview.py" app, 
+ this is a simple Python spreadsheet using curses. 
 
- Acknowledgement - This app has some code from the great little 
- app that David Mertz did for his "Charming Python - curses programming" column 
- Here is the link to that - 
- http://www.ibm.com/developerworks/linux/library/l-python6.html 
+ Acknowledgement: This code would not have been possible without 
+ Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
+ that application is used here. Very many thanks to Andrew for 
+ doing that application!   
 
- To exit the apps, press Ctrl-C. 
+ To exit the spreadsheet, press Ctrl-G. 
  
  As usual, this is public-domain... "share and enjoy....."  :)  
 - mooseman 

@@ -1,7 +1,12 @@
 
 
-#  pdspread.py 
-#  A simple spreadsheet.  
+# pdspread.py 
+# A simple spreadsheet.  
+
+# Acknowledgement: This code would not have been possible without 
+# Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
+# that application is used here. Very many thanks to Andrew for 
+# doing that application!   
 
 #  This code is released to the public domain.  
 

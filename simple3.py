@@ -89,6 +89,19 @@ def str2yx(s):
 
 # NOTE! THE WINDOW.CHGAT FUNCTION IS EXTREMELY USEFUL. IT APPLIES AN 
 # ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
+
+class cell(object): 
+    def __init__(self): 
+       # name (e.g. E5) 
+       # Position (e.g. (7, 28) 
+       # A left method, giving the cell to the left 
+       # A right method, giving the cell to the right
+       # An up method, giving the cell above 
+       # A down method, giving the cell below. 
+       # Have contents method, value methods as well.  
+         
+
+
                   
 #  A spreadsheet class. This class also handles keystrokes  
 class sheet(object):

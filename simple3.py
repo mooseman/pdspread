@@ -58,20 +58,18 @@ coord_pat = re.compile('^(?P<x>[a-zA-Z]{1,2})(?P<y>\d+)$')
 # Col. D will be at x=(8 plus the current width of cols. A, B and C)  
 # .... and so on.  
 
- 
-
-
 def str2yx(s):    
     "Convert a string like A1 to a coordinate pair like 0,0"
     match = coord_pat.match(s)
     if not match: return None
     y,x = match.group('y', 'x')
-    x = string.upper(x)    
-    if len(x)==1: x=ord(x)-65 
+    x = string.upper(x)
+    if x == "A": width = 0
+    else: width = 7    
+    if len(x)==1: x=ord(x)-58 + ( (ord(x)-65) * width) 
     else:
-	x= (ord(x[0])-65)*26 + ord(x[1])-65 + 26
-    return string.atoi(y)-1, x
-
+	x= (ord(x[0])-58+width)*26 + ord(x[1])-58+width + 26
+    return string.atoi(y)+1, x
 
 #assert yx2str(2,1,7) == 'A1'
 #assert yx2str(3,27,7) == 'D2'
@@ -146,18 +144,19 @@ class sheet(object):
           self.rowheadnames.append(self.rowheadname)            
        for c in list(itertools.product(self.colheadnames, self.rowheadnames)): 
           d = str(c[0]+c[1]) 
+          self.poslist.append(str2yx(d)) 
           self.biglist.append(d) 
        # The dict holds the following data (in this order) - 
        # Key - cell name 
        # Values - cell name, cell (y,x) position, contents, value of contents 
        # (for formulas - this is the formula value), format, colour, font, 
        # font-size.    
-       # Position of cell A1 is at (2,9). We can move to other columns by
+       # Position of cell A1 is at (2,7). We can move to other columns by
        # moving by the width of the current column.
-       self.origin = (2,9)
-                      
-       for d in self.biglist:    
-          self.data.update({d: [d, None, None, None, 
+       self.origin = (2,7)
+                                                                  
+       for a, b in zip(self.biglist, self.poslist):    
+          self.data.update({a: [a, b, None, None, 
                     None, None, None]})               
           
                                                                                  
@@ -222,16 +221,14 @@ class sheet(object):
        self.scr.attrset(curses.A_STANDOUT) 
        self.scr.refresh()                               
        #self.scr.addstr(y, x, str(" " * self.width), curses.A_STANDOUT)  
-                            
-       
+                                   
     def test(self): 
-       (y, x) = self.scr.getyx()  
-       #for k, v in self.data.items(): 
-       for a in self.biglist: 
-          self.scr.addstr(y, x, str(a) )  
-          y + 1  
-          (y, x) = self.scr.getyx()        
-          self.scr.refresh()                                  
+       (y, x) = self.scr.getyx()
+       test = yx2str(y,x, self.width) 
+       if self.data.has_key(test): 
+          self.scr.addstr(y, x, str(self.data[test][1]) )  
+       else: 
+          pass                                                 
               
     def test2(self): 
        (y, x) = self.scr.getyx()  
@@ -333,7 +330,7 @@ class sheet(object):
              self.scr.addstr(y, x, str(self.rowheadnames))                     
              self.scr.refresh()  
           elif c==curses.KEY_F7: 
-             self.test3() 
+             self.test() 
           elif c==curses.KEY_F8: 
              self.putdata(10, 30, "This is a test!")    
              

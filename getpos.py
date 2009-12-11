@@ -35,9 +35,9 @@ def str2yx(s):
     x = string.upper(x)
     if x == "A": width = 0
     else: width = 7    
-    if len(x)==1: x=ord(x)-56 + ( (ord(x)-65) * width) 
+    if len(x)==1: x=ord(x)-58 + ( (ord(x)-65) * width) 
     else:
-	x= (ord(x[0])-56+width)*26 + ord(x[1])-56+width + 26
+	x= (ord(x[0])-58+width)*26 + ord(x[1])-58+width + 26
     return string.atoi(y)+1, x
         
                 

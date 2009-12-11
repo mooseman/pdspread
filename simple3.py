@@ -224,11 +224,16 @@ class sheet(object):
                                    
     def test(self): 
        (y, x) = self.scr.getyx()
-       test = yx2str(y,x, self.width) 
-       if self.data.has_key(test): 
+       test = str( str(y) + "," + str(x) )
+       #self.scr.addstr(y, x, str(self.data["A1"][1]) )  
+       self.scr.addstr(y, x, str(self.poslist[0:4]) )  
+       self.scr.addstr(y+1, x, str(self.biglist[0:4]) )  
+       self.scr.addstr(y+2, x, str(test) )  
+       
+       '''if self.data.has_key(test): 
           self.scr.addstr(y, x, str(self.data[test][1]) )  
        else: 
-          pass                                                 
+          pass '''                                                 
               
     def test2(self): 
        (y, x) = self.scr.getyx()  

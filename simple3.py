@@ -92,17 +92,28 @@ def str2yx(s):
 
 class cell(object): 
     def __init__(self): 
-       # name (e.g. E5) 
-       # Position (e.g. (7, 28) 
-       # A left method, giving the cell to the left 
-       # A right method, giving the cell to the right
-       # An up method, giving the cell above 
-       # A down method, giving the cell below. 
-       # Have contents method, value methods as well.  
-         
-
-
-                  
+       # Methods to store the cells bordering this cell. 
+       self.left = self.right = self.above = self.below = None 
+       # Store data 
+       self.data = None
+       # A cell's name (e.g. E5)  
+       self.name = None 
+       # A cell's position (e.g. 7, 28) 
+       self.pos = None 
+       
+    # Set a given attribute    
+    def set(self, attr, val): 
+       if hasattr(self, attr): 
+          setattr(self, attr, val)  
+       else: 
+          pass    
+                 
+    def display(self, attr): 
+       (y, x) = self.scr.getyx()           
+       strattr = str(getattr(self, attr)) 
+       self.scr.addstr(y, x, str(strattr) ) 
+        
+                                            
 #  A spreadsheet class. This class also handles keystrokes  
 class sheet(object):
     def __init__(self, scr): 

@@ -236,18 +236,18 @@ class sheet(object):
           pass '''                                                 
               
     def test2(self): 
-       (y, x) = self.scr.getyx()  
-       for k in self.data.keys(): 
-       #for k, v in self.data.items(): 
-          self.scr.addstr(y, x, str(k) )  
-          y + 1  
-          (y, x) = self.scr.getyx()        
-          self.scr.refresh()          
+       (y, x) = self.scr.getyx()         
+       self.scr.addstr(y, x, str(self.data["E5"][1]) )  
+       target = str2yx("E5")  
+       self.scr.move(target[0], target[1])  
+       self.scr.refresh()          
           
     def test3(self): 
        (y, x) = self.scr.getyx()  
-       mydata = str2yx("E12") 
-       self.scr.addstr(y, x, str(mydata) )  
+       self.scr.addstr(y, x, str(self.data["A1"][1]) )  
+       target = str2yx("A1")  
+       self.scr.move(target[0], target[1])  
+       self.scr.refresh()          
                            
           
     def showpos(self): 
@@ -318,7 +318,7 @@ class sheet(object):
              self.scr.refresh() 
           elif c==curses.KEY_HOME: 
              curses.noecho() 
-             self.scr.move(y, 8) 
+             self.scr.move(y, 7) 
              self.scr.refresh() 
           elif c==curses.KEY_END: 
              curses.noecho() 
@@ -337,8 +337,9 @@ class sheet(object):
           elif c==curses.KEY_F7: 
              self.test() 
           elif c==curses.KEY_F8: 
-             self.putdata(10, 30, "This is a test!")    
-             
+             self.test2() 
+          elif c==curses.KEY_F9: 
+             self.test3()    
              
              #self.test2()                    
           # Ctrl-G quits the app                  

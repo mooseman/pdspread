@@ -91,13 +91,13 @@ def str2yx(s):
 # ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
 
 class cell(object): 
-    def __init__(self): 
+    def init(self): 
        # Methods to store the cells bordering this cell. 
        self.left = self.right = self.above = self.below = None 
        # Store data 
-       self.data = None
+       self.data = {} 
        # A cell's name (e.g. E5)  
-       self.name = None 
+       self.addr = None 
        # A cell's position (e.g. 7, 28) 
        self.pos = None 
        
@@ -115,7 +115,7 @@ class cell(object):
         
                                             
 #  A spreadsheet class. This class also handles keystrokes  
-class sheet(object):
+class sheet(cell):
     def __init__(self, scr): 
        self.scr = scr                       
        # Dictionary to store our data in.   
@@ -167,7 +167,7 @@ class sheet(object):
           self.rowheadname = str(y) 
           self.rowheadnames.append(self.rowheadname)            
        for c in list(itertools.product(self.colheadnames, self.rowheadnames)): 
-          d = str(c[0]+c[1]) 
+          d = str(c[0]+c[1])           
           self.poslist.append(str2yx(d)) 
           self.biglist.append(d) 
        # The dict holds the following data (in this order) - 
@@ -180,10 +180,16 @@ class sheet(object):
        self.origin = (2,7)
                                                                   
        for a, b in zip(self.biglist, self.poslist):    
+          e = cell() 
+          e.init() 
+          e.set(str(e.addr), a) 
+          e.set(str(e.pos), b) 
+          e.data.update({a: [a, b, None, None, 
+                    None, None, None]})   
           self.data.update({a: [a, b, None, None, 
                     None, None, None]})               
           
-                                                                                 
+                                                                                          
        for x in range(7, self.max_x-self.width, self.width): 
           self.colheadname = x2str(x-6, self.width)
           self.colhead = x2str(x-6, self.width).center(self.width)   

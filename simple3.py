@@ -107,7 +107,14 @@ class cell(object):
           setattr(self, attr, val)  
        else: 
           pass    
-                 
+          
+    def move(self, name): 
+       if name == self.addr: 
+          self.scr.move(self.pos[0], self.pos[1]) 
+          self.scr.refresh() 
+       else: 
+          pass    
+                           
     def display(self, attr): 
        (y, x) = self.scr.getyx()           
        strattr = str(getattr(self, attr)) 
@@ -130,7 +137,7 @@ class sheet(cell):
        (y, x) = self.scr.getyx()           
        self.pos = yx2str(y, x, self.width) 
               
-       self.data = {}           
+       self.celldict = {}           
        self.indexlist = [] 
        self.linelist = [] 
        self.stuff = "" 
@@ -186,7 +193,7 @@ class sheet(cell):
           e.set(str(e.pos), b) 
           e.data.update({a: [a, b, None, None, 
                     None, None, None]})   
-          self.data.update({a: [a, b, None, None, 
+          self.celldict.update({a: [a, b, None, None, 
                     None, None, None]})               
           
                                                                                           
@@ -207,8 +214,8 @@ class sheet(cell):
           self.rowheadnames.append(self.rowheadname)        
           self.scr.addstr(y, 0, str(self.rowhead), curses.A_STANDOUT) 
           (y, x) = self.scr.getyx() 
-          self.cell = yx2str(y, x, self.width) 
-          self.data.update({self.cell: [self.cell, None, None, None, None]})            
+          #self.cell = yx2str(y, x, self.width) 
+          #self.data.update({self.cell: [self.cell, None, None, None, None]})            
           
           self.scr.addstr(0, 0, str(self.pos), curses.A_REVERSE)                    
           self.scr.refresh()                                         
@@ -278,7 +285,20 @@ class sheet(cell):
        target = str2yx("A1")  
        self.scr.move(target[0], target[1])  
        self.scr.refresh()          
-                           
+           
+    def test4(self, addr): 
+       (y, x) = self.scr.getyx()    
+       if self.celldict.has_key(addr):   
+          self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+          self.scr.refresh()    
+          target = str2yx(addr)  
+          self.scr.move(target[0], target[1])  
+          (y, x) = self.scr.getyx() 
+          self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
+          self.scr.refresh()                                          
+       else: 
+          pass            
+                                  
           
     def showpos(self): 
        (y, x) = self.scr.getyx()                       
@@ -369,7 +389,7 @@ class sheet(cell):
           elif c==curses.KEY_F8: 
              self.test2() 
           elif c==curses.KEY_F9: 
-             self.test3()    
+             self.test4("A1")    
              
              #self.test2()                    
           # Ctrl-G quits the app                  

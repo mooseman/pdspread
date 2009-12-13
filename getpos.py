@@ -40,6 +40,22 @@ def str2yx(s):
 	x= (ord(x[0])-58+width)*26 + ord(x[1])-58+width + 26
     return string.atoi(y)+1, x
         
+# Find the cell to the left of s         
+def left(s):           
+    match = coord_pat.match(s)
+    if not match: return None
+    y,x = match.group('y', 'x')
+    x = string.upper(x)
+    if x == "A": return None 
+    else: 
+       if len(x)==1: x = chr(ord(x)-1) 
+       else: 
+          # Need to fill this in. Convert 2-letter string to a number, 
+          # subtract 1, then convert to a string again. 
+          
+          x = str(x[0] + str(chr(ord(x[1])-1))) 
+    return str( x + str(y) )     
+                            
                 
 print str2yx("a1")
 print str2yx("b1")
@@ -61,4 +77,14 @@ print x2str(52)
 print x2str(53)
       
          
+#print right("B1") 
+print left("B1") 
+print left("E7")      
+print left("AB5") 
+print left("AA5") 
+
+   
+#print above("C5") 
+#print below("C5")         
+        
         

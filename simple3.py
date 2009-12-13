@@ -122,7 +122,7 @@ class cell(object):
         
                                             
 #  A spreadsheet class. This class also handles keystrokes  
-class sheet(cell):
+class sheet(object):
     def __init__(self, scr): 
        self.scr = scr                       
        # Dictionary to store our data in.   
@@ -185,14 +185,9 @@ class sheet(cell):
        # Position of cell A1 is at (2,7). We can move to other columns by
        # moving by the width of the current column.
        self.origin = (2,7)
+       
                                                                   
-       for a, b in zip(self.biglist, self.poslist):    
-          e = cell() 
-          e.init() 
-          e.set(str(e.addr), a) 
-          e.set(str(e.pos), b) 
-          e.data.update({a: [a, b, None, None, 
-                    None, None, None]})   
+       for a, b in zip(self.biglist, self.poslist):              
           self.celldict.update({a: [a, b, None, None, 
                     None, None, None]})               
           

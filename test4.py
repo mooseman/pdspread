@@ -22,7 +22,8 @@ def findmaxpower(x):
     power = 0 
     mult = 0 
     ans = 0 
-    mylist = [] 
+    multlist = [] 
+    powerlist = [] 
     
 # If we get to 26, then increment the power by 1. 
 # Also reset mylist[0] to 0 
@@ -30,12 +31,14 @@ def findmaxpower(x):
     while (ans < x):   
        ans = mult * (26 ** power)   
        if ans < x:      
-          mult += 1             
-       if mult == 26: 
+          mult += 1      
+       if (mult == 26) or (ans == x): 
           mult = 0 
           power += 1 
+          multlist.append(mult) 
+          powerlist.append(power)                           
                        
-    print x, mult, power           
+    print x, mult, power, multlist, powerlist            
           
             
             

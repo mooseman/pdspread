@@ -43,7 +43,8 @@ str2num("AZ")
 str2num("BA")  
 str2num("BB")  
 str2num("BC")  
-str2num("ZZ")  
+str2num("IV")
+str2num("AAA")  
 
 
 num2str(0)
@@ -56,6 +57,6 @@ num2str(26)
 num2str(27)
 num2str(28)
 num2str(29) 
-
+num2str(256)
 
 

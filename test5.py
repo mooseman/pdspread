@@ -25,17 +25,19 @@ def findmaxpower(x):
     sum = 0 
     multlist = [] 
     powerlist = [] 
+    quot = 0 
+    rem = 0 
     
 # If we get to 26, then increment the power by 1. 
 # Also reset mylist[0] to 0 
 # This is kinda the "wrong way around. Need to rearrange it so that 
 # we start with the highest power first.     
-    while (ans < x):          
-       ans = mult * (26 ** power)      
-       ans2 = divmod(x, (26**power))                 
-       #mystr = str(chr(65+ans2[0]) + chr(65+ans2[1]))   
+    while (sum < x):                 
+       ans2 = divmod(x, (26**power))                                      
        if ans < x:      
           mult += 1    
+          
+          
        else: 
           multlist.append(mult) 
           powerlist.append(power)                                             

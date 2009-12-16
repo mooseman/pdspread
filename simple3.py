@@ -12,6 +12,29 @@
 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    
+
+# Get the letter or numeric part of a cell address (so that we can 
+# manipulate it). 
+def getpart(cell, part): 
+  letters = "" 
+  numbers = "" 
+        
+  for x in cell: 
+     if x.isalpha(): 
+        letters += x 
+     elif x.isdigit(): 
+        numbers += x 
+     else: 
+        pass    
+        
+  numbers = int(numbers)         
+     
+  if part.upper() == "A": 
+     return letters
+  elif part.upper() == "N":
+     return numbers 
+   
+      
 # Helper functions to convert y,x coords to a column, row reference 
 # and vice-versa. 
 def yx2str(y,x, width):
@@ -22,14 +45,31 @@ def yx2str(y,x, width):
 	s=chr(65+ (x/26) ) + chr(65+ (x%26) )
     s=s+str(y)
     return s
-    
-def colnum2str(x): 
-    if x<26: s=chr(65+x)
-    else:
-	x=x-26
-	s=chr(65+ (x/26) ) + chr(65+ (x%26) )    
-    return s    
-        
+
+
+def num2str(number): 
+    result = []
+    letters = ""
+    while number > 0:
+       result.append(number % 26)
+       number /= 26
+    # Convert the digits to letters   
+    for x in result: 
+       letters = letters + chr(64+x)    
+    return letters[::-1] # reverse the string 
+  
+  
+# This function gives the cell in the given direction  
+def move(cell, dir):   
+   if dir.upper == "L": 
+      
+   
+   
+   
+   
+   
+  
+               
 def x2str(x, width): 
     myval = int(x/width) 
     s=chr(65+myval)    

@@ -7,8 +7,9 @@
 # Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
 # that application is used here. Very many thanks to Andrew for 
 # doing that application!   
-
-#  This code is released to the public domain.  
+# Also, *very many thanks* to those in pythonforum.org who have helped 
+# me with my questions there.  
+# This code is released to the public domain.  
 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    
@@ -46,7 +47,7 @@ def yx2str(y,x, width):
     s=s+str(y)
     return s
 
-
+# Convert a "column number" to the column letter(s) 
 def num2str(number): 
     result = []
     letters = ""
@@ -58,18 +59,47 @@ def num2str(number):
        letters = letters + chr(64+x)    
     return letters[::-1] # reverse the string 
   
-  
-# This function gives the cell in the given direction  
-def move(cell, dir):   
-   if dir.upper == "L": 
+
+# Convert "column letter(s)" to the column number   
+def str2num(str): 
+    num = 0 
+    mylen = len(str) 
+    # A list of the powers of 26 that we need for the calculations
+    powerlist = range(mylen-1, -1, -1) 
+    for a,b in zip(str.upper(), powerlist):
+       num += (ord(a)-64) * (26**b)       
+    return num    
+    
+
+# This function returns the cell in the given direction from the 
+# supplied cell.  
+def dir(cell, dir):   
+   letters = getpart(cell, "A") 
+   numbers = getpart(cell, "N")   
+   # Convert the letter part of the address to a number 
+   colnum = str2num(letters) 
+   
+   if dir.upper() == "L": 
+      if colnum > 1: 
+         colnum -= 1 
+         result = str(num2str(colnum) + str(numbers)) 
+      else: 
+         result = None 
+   elif dir.upper() == "R": 
+      colnum += 1 
+      result = str(num2str(colnum) + str(numbers)) 
+   elif dir.upper() == "U": 
+      if numbers > 1: 
+         numbers -= 1 
+         result = str(num2str(colnum) + str(numbers))             
+      else: 
+         result = None 
+   elif dir.upper() == "D": 
+      numbers += 1 
+      result = str(num2str(colnum) + str(numbers))                   
+   return result    
       
-   
-   
-   
-   
-   
-  
-               
+         
 def x2str(x, width): 
     myval = int(x/width) 
     s=chr(65+myval)    

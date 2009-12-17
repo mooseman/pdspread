@@ -164,9 +164,12 @@ def str2yx(s):
 # ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
 
 class cell(object): 
-    def init(self): 
-       # Methods to store the cells bordering this cell. 
+    def init(self, scr):
+       self.scr = scr  
+       # Methods to store the cell NAMES bordering this cell. 
        self.left = self.right = self.above = self.below = None 
+       # Store the cell POSITIONS bordering this cell
+       self.leftpos = self.rightpos = self.abovepos = self.belowpos = None 
        # Store data 
        self.data = {} 
        # A cell's name (e.g. E5)  
@@ -181,15 +184,23 @@ class cell(object):
        if hasattr(self, attr): 
           setattr(self, attr, val)  
        else: 
-          pass    
-          
-    def move(self, name): 
-       if name == self.addr: 
-          self.scr.move(self.pos[0], self.pos[1]) 
+          pass  
+       
+    # Move to another cell 
+    def cellmove(self, dir): 
+       if dir.upper() == "L": 
+          self.scr.move(self.leftpos[0], self.leftpos[1]) 
           self.scr.refresh() 
-       else: 
-          pass    
-                           
+       elif dir.upper() == "R": 
+          self.scr.move(self.rightpos[0], self.rightpos[1]) 
+          self.scr.refresh() 
+       if dir.upper() == "U": 
+          self.scr.move(self.abovepos[0], self.abovepos[1]) 
+          self.scr.refresh() 
+       if dir.upper() == "D": 
+          self.scr.move(self.belowpos[0], self.belowpos[1]) 
+          self.scr.refresh() 
+                                                                                                                    
     def display(self, attr): 
        (y, x) = self.scr.getyx()           
        strattr = str(getattr(self, attr)) 
@@ -296,7 +307,18 @@ class sheet(cell):
        # Set the current cell 
        self.currcell = "A1" 
        a = cell() 
-       a.init()
+       a.init(self.scr) 
+       a.set("addr", "A1")  
+       a.set("pos", (2, 7))
+       a.set("leftpos", None) 
+       a.set("abovepos", None) 
+       a.set("rightpos", (2, 15)) 
+       a.set("belowpos", (3, 7)) 
+       a.set("left", None) 
+       a.set("above", None) 
+       a.set("right", "B1") 
+       a.set("below", "A2") 
+       
        (y, x) = self.scr.getyx() 
        self.scr.chgat(y, x, self.width, curses.A_STANDOUT)                      
        # Move cursor to start of cell. 
@@ -316,31 +338,12 @@ class sheet(cell):
     # This function moves the cell highlight. It restores the old cell 
     # to "normal" background, and highlights the new cell.             
     def move(self, mydir):    
-       self.getcurcell() 
-       # Get the destination cell 
-       self.destcell = dir(self.currcell, mydir)
-       # Get the (y,x) co-ordinates of the current cell 
-       self.curryx = self.celldict[self.currcell][2]    
-       # Get the (y,x) co-ordinates of the destination cell 
-       self.destyx = self.celldict[self.destcell][2]    
-       # Need to move to the "home" (y,x) of the current cell so that 
-       # we are in the correct position before changing its highlighting.                
-       (y, x) = self.scr.getyx()        
-       self.scr.move(tuple(self.curryx)) 
-       #self.scr.move(self.curryx[0], self.curryx[1])  
-       (y, x) = self.scr.getyx()               
-       self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
-       self.scr.refresh() 
-                                     
-       #self.scr.move(self.destyx[0], self.destyx[1])  
-       self.scr.move(tuple(self.destyx)) 
-       (y, x) = self.scr.getyx() 
-       self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
-       self.scr.refresh()  
-                               
-       self.scr.addstr(0, 0, str(self.celldict[0]), curses.A_REVERSE)             
-       self.scr.move(myy, myx)  
-       self.scr.refresh()                               
+       a = cell() 
+       a.init(self.scr) 
+       a.set("rightpos", (2, 15)) 
+       a.set("belowpos", (3, 7)) 
+       a.cellmove(mydir) 
+       
               
     # Highlight the currently-active cell    
     def highlight(self): 

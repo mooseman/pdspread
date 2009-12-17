@@ -2,9 +2,12 @@
 #  direction.py 
 #  Gives the cell which is in a given direction 
 #  from the supplied cell. 
+# Acknowledgement: Very many thanks to those in pythonforum.org who 
+# have helped me with my questions there. In particular, Bill there 
+# supplied the code used in the num2str function here.
 
-# Get the letter or numeric part of a cell address (so that we can 
-# manipulate it). 
+# This code is released to the public domain. 
+
 def getpart(cell, part): 
   letters = "" 
   numbers = "" 
@@ -26,16 +29,18 @@ def getpart(cell, part):
 
 
 # Convert a "column number" to the column letter(s) 
-def num2str(number): 
-    result = []
-    letters = ""
-    while number > 0:
-       result.append(number % 26)
-       number /= 26
-    # Convert the digits to letters   
-    for x in result: 
-       letters = letters + chr(64+x)    
-    return letters[::-1] # reverse the string 
+# See if this can be restricted to the range 1-26 inclusive.
+def num2str(n):
+    assert isinstance(n,int) and n > 0
+    digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    res = []
+    while True:
+        n, r = divmod(n, 26)
+        if r == 0:    # Adjust the quotient and remainder
+            n, r = n-1, 26
+        res[0:0] = digits[r]
+        if n == 0:
+            return "".join(res)
 
 
 # Convert "column letter(s)" to the column number   
@@ -85,6 +90,13 @@ print dir("A1", "L")
 print dir("A1", "U")    
 print dir("A1", "R")    
 print dir("A1", "D")    
-
+print dir("Z1", "R")    
+print dir("AA1", "L")    
+#print str2num("Z") 
+#print str2num("AA") 
+print num2str(27)
+print num2str(26) 
+print num2str(25) 
+print num2str(1) 
 
 

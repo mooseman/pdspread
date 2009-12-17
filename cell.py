@@ -8,9 +8,7 @@
 # that application is used here. Very many thanks to Andrew for 
 # doing that application!   
 # Also, *very many thanks* to those in pythonforum.org who have helped 
-# me with my questions there. In particular, Bill there supplied the 
-# code used in the num2str function here.
- 
+# me with my questions there.  
 # This code is released to the public domain.  
 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
@@ -50,19 +48,18 @@ def yx2str(y,x, width):
     return s
 
 # Convert a "column number" to the column letter(s) 
-def num2str(n):
-    assert isinstance(n,int) and n > 0
-    digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    res = []
-    while True:
-        n, r = divmod(n, 26)
-        if r == 0:    # Adjust the quotient and remainder
-            n, r = n-1, 26
-        res[0:0] = digits[r]
-        if n == 0:
-            return "".join(res)
-
+def num2str(num): 
+    result = []
+    letters = ""
+    while num > 0:
+       result.append(num % 26)
+       num /= 26
+    # Convert the digits to letters   
+    for x in result: 
+       letters = letters + chr(64+x)    
+    return letters[::-1] # reverse the string 
   
+
 # Convert "column letter(s)" to the column number   
 def str2num(str): 
     num = 0 
@@ -193,6 +190,8 @@ class cell(object):
        strattr = str(getattr(self, attr)) 
        self.scr.addstr(y, x, str(strattr) ) 
         
+                    
+                    
                                             
 #  A spreadsheet class. This class also handles keystrokes  
 class sheet(object):
@@ -290,6 +289,8 @@ class sheet(object):
        
        # Move to cell A1 - This is at (2, 9).                     
        self.scr.move(2, 7) 
+       # Set the current cell 
+       self.currcell = "A1" 
        (y, x) = self.scr.getyx() 
        self.scr.chgat(y, x, self.width, curses.A_STANDOUT)                      
        # Move cursor to start of cell. 
@@ -302,19 +303,36 @@ class sheet(object):
        self.scr.setscrreg(0, self.max_y-1)                                
        self.scr.refresh()	    
           
+    # Get the name of the current cell       
+    def getcurcell(self):           
+       return self.currcell    
+          
     # This function moves the cell highlight. It restores the old cell 
     # to "normal" background, and highlights the new cell.             
-    def move(self, myy, myx):        
+    def move(self, mydir):    
+       self.getcurcell() 
+       # Get the destination cell 
+       self.destcell = dir(self.currcell, mydir)
+       # Get the (y,x) co-ordinates of the current cell 
+       self.curryx = self.celldict[self.currcell][2]    
+       # Get the (y,x) co-ordinates of the destination cell 
+       self.destyx = self.celldict[self.destcell][2]    
+       # Need to move to the "home" (y,x) of the current cell so that 
+       # we are in the correct position before changing its highlighting.                
        (y, x) = self.scr.getyx()        
+       self.scr.move(tuple(self.curryx)) 
+       #self.scr.move(self.curryx[0], self.curryx[1])  
+       (y, x) = self.scr.getyx()               
        self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
        self.scr.refresh() 
                                      
-       self.scr.move(myy, myx)  
+       #self.scr.move(self.destyx[0], self.destyx[1])  
+       self.scr.move(tuple(self.destyx)) 
        (y, x) = self.scr.getyx() 
        self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
-       self.scr.refresh()                   
-       (y, x) = self.scr.getyx()    
-       self.scr.addstr(0, 0, yx2str(y, x, curses.A_REVERSE) )            
+       self.scr.refresh()  
+                               
+       self.scr.addstr(0, 0, str(self.celldict[0]), curses.A_REVERSE)             
        self.scr.move(myy, myx)  
        self.scr.refresh()                               
               
@@ -398,15 +416,14 @@ class sheet(object):
           if c in (curses.KEY_ENTER, 10):                
              curses.noecho()  
              self.scr.chgat(y, x, self.width, curses.A_NORMAL)                                  
-             self.move(y+1, x)                 
+             self.move("D")                 
              self.scr.refresh()                                                                                                        
           elif c==curses.KEY_UP:  
              curses.noecho()                
-             if y > 2:                 
-                self.move(y-1, x)                                    
+             if y > 2:   
+                self.move("U")                                
              elif y == 2 and self.win_y > 0:   
-                self.scr.scroll(-1)                   
-                self.move(y, x)                  
+                self.scr.scroll(-1)                                   
              else: 
                 pass                                                                                     
              self.scr.refresh()
@@ -414,23 +431,22 @@ class sheet(object):
              curses.noecho()   
              (y, x) = self.scr.getyx()           
              if y < self.max_y-1:                    
-                self.move(y+1, x)                   
+                self.move("D")  
                 self.scr.refresh()                                                                 
              else:                                          
-                self.scr.scroll(1)                                 
-                self.move(y, x)                  
+                self.scr.scroll(1)                                                 
              self.scr.refresh()   
           elif c==curses.KEY_LEFT: 
              curses.noecho()  
              if x >= 7 + self.width:                 
-                self.move(y, x-self.width) 
+                self.move("L")  
              else: 
                 pass 
              self.scr.refresh()
           elif c==curses.KEY_RIGHT: 
              curses.noecho() 
              if x < self.max_x-self.width-1:                 
-                self.move(y, x+self.width) 
+                self.move("R")                  
              else: 
                 pass                 
              self.scr.refresh() 

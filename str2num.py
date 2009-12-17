@@ -15,7 +15,7 @@ def str2num(str):
 # Test the code 
 print str2num("G") 
 print str2num("Z") 
-print str2num("AC") 
+print str2num("AA") 
 print str2num("BE") 
 print str2num("AAC") 
 

@@ -7,6 +7,9 @@
 # Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
 # that application is used here. Very many thanks to Andrew for 
 # doing that application!   
+# Also, *very many thanks* to those in pythonforum.org who have helped
+# me with my questions there. In particular, Bill there supplied the
+# code used in the num2str function here.
  
 # This code is released to the public domain.  
 
@@ -47,18 +50,32 @@ def yx2str(y,x, width):
     return s
 
 # Convert a "column number" to the column letter(s) 
-def num2str(number):
-    result = []
-    letters = ""
-    while number > 0:
-       result.append(number % 26)
-       number /= 26
-    # Convert the digits to letters
-    for x in result:
-       letters = letters + chr(64+x)
-    return letters[::-1] # reverse the string 
+def num2str(n):
+    assert isinstance(n,int) and n > 0
+    digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    res = [] 
+    while True:
+        n, r = divmod(n, 26)
+        if r == 0:    # Adjust the quotient and remainder
+            n, r = n-1, 26
+        res[0:0] = digits[r]
+        if n == 0:            
+            return str("".join(res))
 
+
+def newnum2str(n):
+    #assert isinstance(n,int) and n > 0
+    digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    res = []
+    while True:
+        n, r = divmod(n, 26)
+        if r == 0:    # Adjust the quotient and remainder
+            n, r = n-1, 26
+        res[0:0] = digits[r]
+        if n == 0:
+            return "".join(res)
   
+    
 # Convert "column letter(s)" to the column number   
 def str2num(str): 
     num = 0 
@@ -233,7 +250,7 @@ class sheet(object):
        self.numcols = int((self.max_x-self.width)/self.width)   
           
        #for x in range(1, self.max_x-self.width, self.width): 
-       for x in range(0, self.numcols): 
+       for x in range(1, self.numcols): 
           #self.colheadname = x2str(x, self.width) 
           self.colheadname = num2str(x) 
           self.colheadnames.append(self.colheadname)         
@@ -440,13 +457,13 @@ class sheet(object):
              self.scr.refresh()  
           elif c==curses.KEY_F5: 
              (y, x) = self.scr.getyx() 
-             self.test = yx2str(y, x, self.width) 
-             self.scr.addstr(y, x, str(self.test))                     
+             a = newnum2str(28)              
+             self.scr.addstr(y, x, str(a))                     
              self.scr.refresh()  
           elif c==curses.KEY_F6: 
              (y, x) = self.scr.getyx() 
-             self.test = yx2str(y, x, self.width) 
-             self.scr.addstr(y, x, str(self.rowheadnames))                     
+             b = num2str(28)                           
+             self.scr.addstr(y, x, str(b))                     
              self.scr.refresh()  
           elif c==curses.KEY_F7: 
              self.test() 

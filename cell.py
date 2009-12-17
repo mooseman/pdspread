@@ -8,7 +8,9 @@
 # that application is used here. Very many thanks to Andrew for 
 # doing that application!   
 # Also, *very many thanks* to those in pythonforum.org who have helped 
-# me with my questions there.  
+# me with my questions there. In particular, Bill there supplied the
+# code used in the num2str function here. 
+
 # This code is released to the public domain.  
 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
@@ -49,17 +51,17 @@ def yx2str(y,x, width):
 
 # Convert a "column number" to the column letter(s) 
 def num2str(n):
-    #assert isinstance(n,int) and n > 0
+    assert isinstance(n,int) and n > 0
     digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    res = []
+    res = [] 
     while True:
         n, r = divmod(n, 26)
         if r == 0:    # Adjust the quotient and remainder
             n, r = n-1, 26
         res[0:0] = digits[r]
-        if n == 0:
-            return "".join(res)
-  
+        if n == 0:            
+            return str("".join(res))
+    
 
 # Convert "column letter(s)" to the column number   
 def str2num(str): 
@@ -238,7 +240,7 @@ class sheet(cell):
        self.numcols = int((self.max_x-self.width)/self.width)   
           
        #for x in range(1, self.max_x-self.width, self.width): 
-       for x in range(0, self.numcols): 
+       for x in range(1, self.numcols): 
           #self.colheadname = x2str(x, self.width) 
           self.colheadname = num2str(x) 
           self.colheadnames.append(self.colheadname)         

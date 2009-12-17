@@ -7,9 +7,6 @@
 # Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
 # that application is used here. Very many thanks to Andrew for 
 # doing that application!   
-# Also, *very many thanks* to those in pythonforum.org who have helped 
-# me with my questions there. In particular, Bill there supplied the 
-# code used in the num2str function here.
  
 # This code is released to the public domain.  
 
@@ -50,17 +47,16 @@ def yx2str(y,x, width):
     return s
 
 # Convert a "column number" to the column letter(s) 
-def num2str(n):
-    assert isinstance(n,int) and n > 0
-    digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    res = []
-    while True:
-        n, r = divmod(n, 26)
-        if r == 0:    # Adjust the quotient and remainder
-            n, r = n-1, 26
-        res[0:0] = digits[r]
-        if n == 0:
-            return "".join(res)
+def num2str(number):
+    result = []
+    letters = ""
+    while number > 0:
+       result.append(number % 26)
+       number /= 26
+    # Convert the digits to letters
+    for x in result:
+       letters = letters + chr(64+x)
+    return letters[::-1] # reverse the string 
 
   
 # Convert "column letter(s)" to the column number   

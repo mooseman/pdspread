@@ -48,16 +48,17 @@ def yx2str(y,x, width):
     return s
 
 # Convert a "column number" to the column letter(s) 
-def num2str(num): 
-    result = []
-    letters = ""
-    while num > 0:
-       result.append(num % 26)
-       num /= 26
-    # Convert the digits to letters   
-    for x in result: 
-       letters = letters + chr(64+x)    
-    return letters[::-1] # reverse the string 
+def num2str(n):
+    #assert isinstance(n,int) and n > 0
+    digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    res = []
+    while True:
+        n, r = divmod(n, 26)
+        if r == 0:    # Adjust the quotient and remainder
+            n, r = n-1, 26
+        res[0:0] = digits[r]
+        if n == 0:
+            return "".join(res)
   
 
 # Convert "column letter(s)" to the column number   
@@ -167,10 +168,12 @@ class cell(object):
        # Store data 
        self.data = {} 
        # A cell's name (e.g. E5)  
-       self.addr = None 
+       self.addr = None        
        # A cell's position (e.g. 7, 28) 
        self.pos = None 
-       
+       # Set the width 
+       self.width = 7 
+              
     # Set a given attribute    
     def set(self, attr, val): 
        if hasattr(self, attr): 
@@ -190,11 +193,9 @@ class cell(object):
        strattr = str(getattr(self, attr)) 
        self.scr.addstr(y, x, str(strattr) ) 
         
-                    
-                    
-                                            
+                                                                                
 #  A spreadsheet class. This class also handles keystrokes  
-class sheet(object):
+class sheet(cell):
     def __init__(self, scr): 
        self.scr = scr                       
        # Dictionary to store our data in.   
@@ -210,6 +211,7 @@ class sheet(object):
        self.pos = yx2str(y, x, self.width) 
               
        self.celldict = {}           
+       
        self.indexlist = [] 
        self.linelist = [] 
        self.stuff = "" 
@@ -291,6 +293,8 @@ class sheet(object):
        self.scr.move(2, 7) 
        # Set the current cell 
        self.currcell = "A1" 
+       a = cell() 
+       a.init()
        (y, x) = self.scr.getyx() 
        self.scr.chgat(y, x, self.width, curses.A_STANDOUT)                      
        # Move cursor to start of cell. 

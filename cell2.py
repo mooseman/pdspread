@@ -177,11 +177,9 @@ class cell(object):
       self.rightpos = (y, x+self.width)   
               
       # Store data 
-      self.data = {} 
-      # A cell's name (e.g. E5)  
-      self.addr = None               
-      # Set the width 
-      self.width = 7 
+      self.data = {}       
+      self.scr.refresh() 
+      
               
    # Set a given attribute    
    def set(self, attr, val): 
@@ -201,8 +199,8 @@ class cell(object):
              self.scr.move(self.leftpos[0], self.leftpos[1]) 
              (y, x) = self.scr.getyx() 
              self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
-             a = cell(self.scr) 
-             a.init()
+             a = cell() 
+             a.init(self.scr)
              self.scr.refresh()                                
           else: 
              pass              

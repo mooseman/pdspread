@@ -190,12 +190,13 @@ class cell(object):
        
    # Move to another cell 
    def cellmove(self, dir): 
+      # First, go to the "home" position of the cell 
+      self.scr.move(self.pos[0], self.pos[1]) 
+      (y, x) = self.scr.getyx() 
+      self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+      self.scr.refresh()                                
       if dir.upper() == "L": 
-          if self.leftpos != None: 
-             self.scr.move(self.pos[0], self.pos[1]) 
-             (y, x) = self.scr.getyx() 
-             self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
-             self.scr.refresh()  
+          if self.leftpos != None:              
              self.scr.move(self.leftpos[0], self.leftpos[1]) 
              (y, x) = self.scr.getyx() 
              self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
@@ -204,11 +205,7 @@ class cell(object):
              self.scr.refresh()                                
           else: 
              pass              
-      elif dir.upper() == "R": 
-          self.scr.move(self.pos[0], self.pos[1]) 
-          (y, x) = self.scr.getyx() 
-          self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
-          self.scr.refresh()         
+      elif dir.upper() == "R":           
           self.scr.move(self.rightpos[0], self.rightpos[1]) 
           (y, x) = self.scr.getyx() 
           self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
@@ -216,11 +213,7 @@ class cell(object):
           a.init(self.scr)
           self.scr.refresh() 
       elif dir.upper() == "U": 
-          if self.abovepos != None: 
-             self.scr.move(self.pos[0], self.pos[1]) 
-             (y, x) = self.scr.getyx() 
-             self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
-             self.scr.refresh()         
+          if self.abovepos != None:              
              self.scr.move(self.abovepos[0], self.abovepos[1]) 
              (y, x) = self.scr.getyx() 
              self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
@@ -229,11 +222,7 @@ class cell(object):
              self.scr.refresh() 
           else: 
              pass                 
-      elif dir.upper() == "D": 
-          self.scr.move(self.pos[0], self.pos[1]) 
-          (y, x) = self.scr.getyx() 
-          self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
-          self.scr.refresh() 
+      elif dir.upper() == "D":           
           self.scr.move(self.belowpos[0], self.belowpos[1]) 
           (y, x) = self.scr.getyx() 
           self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
@@ -250,6 +239,7 @@ class cell(object):
 class sheet(cell):
     def __init__(self, scr): 
        self.scr = scr  
+       self.stuff = "" 
        (y, x) = self.scr.getyx()           
        self.width = 6 
        # A variable to save the line-number of text. 
@@ -265,6 +255,9 @@ class sheet(cell):
        # Create a cell 
        a = cell() 
        a.init(self.scr) 
+       # Look at adding headings code here to create the column and 
+       # row headings. 
+              
        self.scr.keypad(1)            
        self.scr.scrollok(1)
        self.scr.idlok(1)  
@@ -329,8 +322,10 @@ class sheet(cell):
              self.scr.refresh()  
           elif c==curses.KEY_F5: 
              (y, x) = self.scr.getyx() 
-             self.test = yx2str(y, x, self.width) 
-             self.scr.addstr(y, x, str(self.test))                     
+             a = cell()
+             a.init(self.scr) 
+             name = a.name                           
+             self.scr.addstr(y, x, str(name))                                  
              self.scr.refresh()  
           elif c==curses.KEY_F6: 
              (y, x) = self.scr.getyx() 

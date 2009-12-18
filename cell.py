@@ -166,16 +166,28 @@ def str2yx(s):
 class cell(object): 
     def init(self, scr):
        self.scr = scr  
-       # Methods to store the cell NAMES bordering this cell. 
-       self.left = self.right = self.above = self.below = None 
-       # Store the cell POSITIONS bordering this cell
-       self.leftpos = self.rightpos = self.abovepos = self.belowpos = None 
+       self.width = 6 
+       (y, x) = self.scr.getyx() 
+       # The position of the cell
+       self.pos = (y, x)                                   
+       # The name of the cell (e.g. "A1") 
+       self.name = str(num2str(x-self.width) + str(y-1)) 
+       # Store the cell POSITIONS bordering this cell              
+       if getpart(self.name, "A") != "A": 
+          self.leftpos = (y, x-self.width)          
+       else: 
+          self.leftpos = None    
+       if getpart(self.name, "N") != 1: 
+          self.abovepos = (y-1, x)          
+       else: 
+          self.abovepos = None       
+       self.belowpos = (y+1, x) 
+       self.rightpos = (y, x+self.width)   
+              
        # Store data 
        self.data = {} 
        # A cell's name (e.g. E5)  
-       self.addr = None        
-       # A cell's position (e.g. 7, 28) 
-       self.pos = None 
+       self.addr = None               
        # Set the width 
        self.width = 7 
               
@@ -189,16 +201,46 @@ class cell(object):
     # Move to another cell 
     def cellmove(self, dir): 
        if dir.upper() == "L": 
-          self.scr.move(self.leftpos[0], self.leftpos[1]) 
-          self.scr.refresh() 
+          if self.leftpos != None: 
+             self.scr.move(self.pos[0], self.pos[1]) 
+             (y, x) = self.scr.getyx() 
+             self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+             self.scr.refresh()  
+             self.scr.move(self.leftpos[0], self.leftpos[1]) 
+             (y, x) = self.scr.getyx() 
+             self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
+             self.scr.refresh()                                
+          else: 
+             pass              
        elif dir.upper() == "R": 
+          self.scr.move(self.pos[0], self.pos[1]) 
+          (y, x) = self.scr.getyx() 
+          self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+          self.scr.refresh()         
           self.scr.move(self.rightpos[0], self.rightpos[1]) 
+          (y, x) = self.scr.getyx() 
+          self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
           self.scr.refresh() 
        if dir.upper() == "U": 
-          self.scr.move(self.abovepos[0], self.abovepos[1]) 
-          self.scr.refresh() 
+          if self.abovepos != None: 
+             self.scr.move(self.pos[0], self.pos[1]) 
+             (y, x) = self.scr.getyx() 
+             self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+             self.scr.refresh()         
+             self.scr.move(self.abovepos[0], self.abovepos[1]) 
+             (y, x) = self.scr.getyx() 
+             self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
+             self.scr.refresh() 
+          else: 
+             pass                 
        if dir.upper() == "D": 
+          self.scr.move(self.pos[0], self.pos[1]) 
+          (y, x) = self.scr.getyx() 
+          self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+          self.scr.refresh() 
           self.scr.move(self.belowpos[0], self.belowpos[1]) 
+          (y, x) = self.scr.getyx() 
+          self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
           self.scr.refresh() 
                                                                                                                     
     def display(self, attr): 
@@ -210,7 +252,7 @@ class cell(object):
 #  A spreadsheet class. This class also handles keystrokes  
 class sheet(cell):
     def __init__(self, scr): 
-       self.scr = scr                       
+       self.scr = scr           
        # Dictionary to store our data in.   
        self.biglist = [] 
        # The position of A1, the "origin". All cells are positioned with 

@@ -1,17 +1,6 @@
 
+# cell2.py 
 
-#  pdspread.py 
-#  A simple spreadsheet.  
-
-# Acknowledgement: This code would not have been possible without 
-# Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
-# that application is used here. Very many thanks to Andrew for 
-# doing that application!   
-# Also, *very many thanks* to those in pythonforum.org who have helped 
-# me with my questions there. In particular, Bill there supplied the
-# code used in the num2str function here. 
-
-# This code is released to the public domain.  
 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    
@@ -163,44 +152,47 @@ def str2yx(s):
 # NOTE! THE WINDOW.CHGAT FUNCTION IS EXTREMELY USEFUL. IT APPLIES AN 
 # ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
 
+# A cell class 
 class cell(object): 
-    def init(self, scr):
-       self.scr = scr  
-       self.width = 6 
-       (y, x) = self.scr.getyx() 
-       # The position of the cell
-       self.pos = (y, x)                                   
-       # The name of the cell (e.g. "A1") 
-       self.name = str(num2str(x-self.width) + str(y-1)) 
-       # Store the cell POSITIONS bordering this cell              
-       if getpart(self.name, "A") != "A": 
+   def init(self, scr):
+      self.scr = scr   
+      self.width = 6 
+      (y, x) = self.scr.getyx() 
+      # The position of the cell
+      self.pos = (y, x)                                   
+      self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
+      self.scr.refresh()
+      # The name of the cell (e.g. "A1") 
+      self.name = str(num2str(x-self.width) + str(y-1)) 
+      # Store the cell POSITIONS bordering this cell              
+      if getpart(self.name, "A") != "A": 
           self.leftpos = (y, x-self.width)          
-       else: 
+      else: 
           self.leftpos = None    
-       if getpart(self.name, "N") != 1: 
+      if getpart(self.name, "N") != 1: 
           self.abovepos = (y-1, x)          
-       else: 
+      else: 
           self.abovepos = None       
-       self.belowpos = (y+1, x) 
-       self.rightpos = (y, x+self.width)   
+      self.belowpos = (y+1, x) 
+      self.rightpos = (y, x+self.width)   
               
-       # Store data 
-       self.data = {} 
-       # A cell's name (e.g. E5)  
-       self.addr = None               
-       # Set the width 
-       self.width = 7 
+      # Store data 
+      self.data = {} 
+      # A cell's name (e.g. E5)  
+      self.addr = None               
+      # Set the width 
+      self.width = 7 
               
-    # Set a given attribute    
-    def set(self, attr, val): 
-       if hasattr(self, attr): 
+   # Set a given attribute    
+   def set(self, attr, val): 
+      if hasattr(self, attr): 
           setattr(self, attr, val)  
-       else: 
+      else: 
           pass  
        
-    # Move to another cell 
-    def cellmove(self, dir): 
-       if dir.upper() == "L": 
+   # Move to another cell 
+   def cellmove(self, dir): 
+      if dir.upper() == "L": 
           if self.leftpos != None: 
              self.scr.move(self.pos[0], self.pos[1]) 
              (y, x) = self.scr.getyx() 
@@ -214,7 +206,7 @@ class cell(object):
              self.scr.refresh()                                
           else: 
              pass              
-       elif dir.upper() == "R": 
+      elif dir.upper() == "R": 
           self.scr.move(self.pos[0], self.pos[1]) 
           (y, x) = self.scr.getyx() 
           self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
@@ -225,7 +217,7 @@ class cell(object):
           a = cell() 
           a.init(self.scr)
           self.scr.refresh() 
-       if dir.upper() == "U": 
+      elif dir.upper() == "U": 
           if self.abovepos != None: 
              self.scr.move(self.pos[0], self.pos[1]) 
              (y, x) = self.scr.getyx() 
@@ -239,7 +231,7 @@ class cell(object):
              self.scr.refresh() 
           else: 
              pass                 
-       if dir.upper() == "D": 
+      elif dir.upper() == "D": 
           self.scr.move(self.pos[0], self.pos[1]) 
           (y, x) = self.scr.getyx() 
           self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
@@ -251,46 +243,17 @@ class cell(object):
           a.init(self.scr)
           self.scr.refresh() 
                                                                                                                     
-    def display(self, attr): 
-       (y, x) = self.scr.getyx()           
-       strattr = str(getattr(self, attr)) 
-       self.scr.addstr(y, x, str(strattr) ) 
-        
-                                                                                
-#  A spreadsheet class. This class also handles keystrokes  
+   def display(self, attr): 
+      (y, x) = self.scr.getyx()           
+      strattr = str(getattr(self, attr)) 
+      self.scr.addstr(y, x, str(strattr) ) 
+      
+      
 class sheet(cell):
     def __init__(self, scr): 
-       self.scr = scr           
-       # Dictionary to store our data in.   
-       self.biglist = [] 
-       # The position of A1, the "origin". All cells are positioned with 
-       # reference to this. 
-       self.origin = (2,9)
-       # The position of the cell highlight. This is shown at the 
-       # top-left of the screen. 
-       self.width = 7  
-        
+       self.scr = scr  
        (y, x) = self.scr.getyx()           
-       self.pos = yx2str(y, x, self.width) 
-              
-       self.celldict = {}           
-       
-       self.indexlist = [] 
-       self.linelist = [] 
-       self.stuff = "" 
-       # The position list 
-       self.poslist = [] 
-       
-       # These lists have the ACTUAL headings (which INCLUDE the 
-       # spaces! ) 
-       self.rowheadlist = []
-       self.colheadlist = []                   
-       
-       # These lists have the NAMES of the headings (which EXCLUDE the 
-       # spaces! ) 
-       self.rowheadnames = []
-       self.colheadnames = []
-              
+       self.width = 6 
        # A variable to save the line-number of text. 
        self.win_y = self.win_x = 0  
        # The screen size (number of rows and columns). 
@@ -298,175 +261,24 @@ class sheet(cell):
           
        # calculate the number of columns 
        # We subtract self.width to cater for the width of the row headings
-       self.numcols = int((self.max_x-self.width)/self.width)   
-          
-       #for x in range(1, self.max_x-self.width, self.width): 
-       for x in range(1, self.numcols): 
-          #self.colheadname = x2str(x, self.width) 
-          self.colheadname = num2str(x) 
-          self.colheadnames.append(self.colheadname)         
-       # Start at 3 to make room for the edit line and cell highlight
-       # at the top of the screen.    
-       for y in range(1, self.max_y-2): 
-          self.rowheadname = str(y) 
-          self.rowheadnames.append(self.rowheadname)            
-       for c in list(itertools.product(self.colheadnames, self.rowheadnames)): 
-          d = str(c[0]+c[1])           
-          self.poslist.append(str2yx(d)) 
-          self.biglist.append(d) 
-       # The dict holds the following data (in this order) - 
-       # Key - cell name 
-       # Values - cell name, cell (y,x) position, contents, value of contents 
-       # (for formulas - this is the formula value), format, colour, font, 
-       # font-size.    
-       # Position of cell A1 is at (2,7). We can move to other columns by
-       # moving by the width of the current column.
-       self.origin = (2,7)
-       
-                                                                  
-       for a, b in zip(self.biglist, self.poslist):              
-          self.celldict.update({a: [a, b, None, None, 
-                    None, None, None]})               
-          
-                                                                                          
-       for x in range(7, self.max_x-self.width, self.width): 
-          self.colheadname = x2str(x-6, self.width)
-          self.colhead = x2str(x-6, self.width).center(self.width)   
-          self.colheadlist.append(self.colhead)    
-          self.colheadnames.append(self.colheadname)        
-          self.scr.addstr(1, x, str(self.colhead), curses.A_STANDOUT) 
-          (y, x) = self.scr.getyx()           
-          self.scr.refresh() 
-                              
-       # Row headings    
-       for y in range(2, self.max_y-1): 
-          self.rowheadname = str(y-1)
-          self.rowhead = str(y-1).center(self.width)    
-          self.rowheadlist.append(self.rowhead)        
-          self.rowheadnames.append(self.rowheadname)        
-          self.scr.addstr(y, 0, str(self.rowhead), curses.A_STANDOUT) 
-          (y, x) = self.scr.getyx() 
-          #self.cell = yx2str(y, x, self.width) 
-          #self.data.update({self.cell: [self.cell, None, None, None, None]})            
-          
-          self.scr.addstr(0, 0, str(self.pos), curses.A_REVERSE)                    
-          self.scr.refresh()                                         
-       
-       # Move to cell A1 - This is at (2, 9).                     
-       self.scr.move(2, 7) 
-       # Set the current cell 
-       self.currcell = "A1" 
+       self.numcols = int((self.max_x-self.width)/self.width)                        
+       curses.noecho() 
+       self.scr.move(2, 8) 
+       # Create a cell 
        a = cell() 
        a.init(self.scr) 
-       a.set("addr", "A1")  
-       a.set("pos", (2, 7))
-       a.set("leftpos", None) 
-       a.set("abovepos", None) 
-       a.set("rightpos", (2, 15)) 
-       a.set("belowpos", (3, 7)) 
-       a.set("left", None) 
-       a.set("above", None) 
-       a.set("right", "B1") 
-       a.set("below", "A2") 
-       
-       (y, x) = self.scr.getyx() 
-       self.scr.chgat(y, x, self.width, curses.A_STANDOUT)                      
-       # Move cursor to start of cell. 
-       #self.scr.move(2, 10) 
-       self.scr.refresh()                                                                                                                                                  
-       curses.noecho() 
        self.scr.keypad(1)            
        self.scr.scrollok(1)
        self.scr.idlok(1)  
        self.scr.setscrreg(0, self.max_y-1)                                
-       self.scr.refresh()	    
-          
-    # Get the name of the current cell       
-    def getcurcell(self):           
-       return self.currcell    
-          
-    # This function moves the cell highlight. It restores the old cell 
+       self.scr.refresh()	     
+    
     # to "normal" background, and highlights the new cell.             
     def move(self, mydir):    
        a = cell() 
-       a.init(self.scr) 
-       a.set("rightpos", (2, 15)) 
-       a.set("belowpos", (3, 7)) 
+       a.init(self.scr)        
        a.cellmove(mydir) 
-       
-              
-    # Highlight the currently-active cell    
-    def highlight(self): 
-       (y, x) = self.scr.getyx() 
-       self.cursorstart = (y, x) 
-       self.cursorend = (y, x+self.width)
-       self.scr.attrset(curses.A_STANDOUT) 
-       self.scr.refresh()                               
-       #self.scr.addstr(y, x, str(" " * self.width), curses.A_STANDOUT)  
-                                   
-    def test(self): 
-       (y, x) = self.scr.getyx()
-       test = str( str(y) + "," + str(x) )
-       #self.scr.addstr(y, x, str(self.data["A1"][1]) )  
-       self.scr.addstr(y, x, str(self.poslist[0:4]) )  
-       self.scr.addstr(y+1, x, str(self.biglist[0:4]) )  
-       self.scr.addstr(y+2, x, str(test) )  
-       
-       '''if self.data.has_key(test): 
-          self.scr.addstr(y, x, str(self.data[test][1]) )  
-       else: 
-          pass '''                                                 
-              
-    def test2(self): 
-       (y, x) = self.scr.getyx()         
-       self.scr.addstr(y, x, str(self.data["E5"][1]) )  
-       target = str2yx("E5")  
-       self.scr.move(target[0], target[1])  
-       self.scr.refresh()          
-          
-    def test3(self): 
-       (y, x) = self.scr.getyx()  
-       self.scr.addstr(y, x, str(self.data["A1"][1]) )  
-       target = str2yx("A1")  
-       self.scr.move(target[0], target[1])  
-       self.scr.refresh()          
-           
-    def test4(self, addr): 
-       (y, x) = self.scr.getyx()    
-       if self.celldict.has_key(addr):   
-          self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
-          self.scr.refresh()    
-          target = str2yx(addr)  
-          self.scr.move(target[0], target[1])  
-          (y, x) = self.scr.getyx() 
-          self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
-          self.scr.refresh()                                          
-       else: 
-          pass            
-                                  
-          
-    def showpos(self): 
-       (y, x) = self.scr.getyx()                       
-       self.scr.addstr(0, 0, yx2str(y, x, curses.A_REVERSE) )         
-                                             
-    def putdata(self, myy, myx, mydata):     
-       self.scr.move(myy, myx)  
-       (y, x) = self.scr.getyx()    
-       #self.width = 20                   
-       self.posname = yx2str(y, x, self.width) 
-       # Try window.chgat([y, x][, num], attr) 
-       # THIS WORKS!! IT HIGHLIGHTS (OR PUTS BACK TO NORMAL) 
-       # A SELECTED AREA!  
-       self.scr.chgat(y, x, 10, curses.A_STANDOUT) 
-       self.mydata = mydata        
-       self.scr.addstr(y, x, str(self.mydata) )         
-       self.scr.refresh()  
-       #self.cursorend = (y, x+self.width)
-       #self.thiscell.attrset(curses.A_STANDOUT) 
-       #self.mydata = 123        
-       #self.scr.refresh()  
-         
-                                                                                                                                                                                                                             
+    
     def action(self):  
        while (1): 
           (y, x) = self.scr.getyx()            
@@ -580,3 +392,9 @@ if __name__ == '__main__':
      curses.endwin()
      traceback.print_exc()  # Print the exception
 
+
+
+   
+       
+       
+       

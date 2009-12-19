@@ -40,7 +40,7 @@ def yx2str(y,x, width):
 
 # Convert a "column number" to the column letter(s) 
 def num2str(n):
-    assert isinstance(n,int) and n > 0
+    #assert isinstance(n,int) and n > 0
     digits = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     res = [] 
     while True:
@@ -126,8 +126,9 @@ def str2yx(s):
     if not match: return None
     y,x = match.group('y', 'x')
     x = string.upper(x)
-    if x == "A": width = 0
-    else: width = 7    
+    width = 6
+    '''if x == "A": width = 0
+    else: width = 6 '''   
     if len(x)==1: x=ord(x)-58 + ( (ord(x)-65) * width) 
     else:
 	x= (ord(x[0])-58+width)*26 + ord(x[1])-58+width + 26
@@ -163,7 +164,10 @@ class cell(object):
       self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
       self.scr.refresh()
       # The name of the cell (e.g. "A1") 
-      self.name = str(num2str(x-self.width) + str(y-1)) 
+      if x > self.width+1: 
+         self.name = str(num2str(x-self.width) + str(y-1)) 
+      else: 
+         self.name = str(num2str(x) + str(y-1))              
       # Store the cell POSITIONS bordering this cell              
       if getpart(self.name, "A") != "A": 
           self.leftpos = (y, x-self.width)          
@@ -179,8 +183,7 @@ class cell(object):
       # Store data 
       self.data = {}       
       self.scr.refresh() 
-      
-              
+                    
    # Set a given attribute    
    def set(self, attr, val): 
       if hasattr(self, attr): 
@@ -251,7 +254,7 @@ class sheet(cell):
        # We subtract self.width to cater for the width of the row headings
        self.numcols = int((self.max_x-self.width)/self.width)                        
        curses.noecho() 
-       self.scr.move(2, 8) 
+       self.scr.move(2, 7) 
        # Create a cell 
        a = cell() 
        a.init(self.scr) 
@@ -276,8 +279,8 @@ class sheet(cell):
           curses.echo()                           
           c=self.scr.getch()		# Get a keystroke                                                                                  
           if c in (curses.KEY_ENTER, 10):                
-             curses.noecho()  
-             self.scr.chgat(y, x, self.width, curses.A_NORMAL)                                  
+             curses.noecho()        
+             (y, x) = self.scr.getyx()                   
              self.move("D")                 
              self.scr.refresh()                                                                                                        
           elif c==curses.KEY_UP:  
@@ -314,11 +317,21 @@ class sheet(cell):
              self.scr.refresh() 
           elif c==curses.KEY_HOME: 
              curses.noecho() 
+             (y, x) = self.scr.getyx() 
+             self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+             self.scr.refresh()                                
              self.scr.move(y, 7) 
+             a = cell()
+             a.init(self.scr) 
              self.scr.refresh() 
           elif c==curses.KEY_END: 
              curses.noecho() 
+             (y, x) = self.scr.getyx() 
+             self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+             self.scr.refresh()                                
              self.scr.move(y, self.max_x - self.width-1) 
+             a = cell()
+             a.init(self.scr) 
              self.scr.refresh()  
           elif c==curses.KEY_F5: 
              (y, x) = self.scr.getyx() 

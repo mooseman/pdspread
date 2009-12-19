@@ -153,7 +153,59 @@ def str2yx(s):
 # NOTE! THE WINDOW.CHGAT FUNCTION IS EXTREMELY USEFUL. IT APPLIES AN 
 # ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
 
+
+  
+class matrix(object):
+   def __init__(self, rows, cols):
+       self.rows = rows
+       self.cols = cols
+       
+       # initialize matrix and fill with zeroes
+       self.matrix = []
+       for i in range(rows):
+           ea_row = []
+           for j in range(cols):
+               ea_row.append(0)
+           self.matrix.append(ea_row)
+  
+   def setitem(self, row, col, v):
+       self.matrix[row-1][col-1] = v
+  
+   def getitem(self, row, col):
+       return self.matrix[row-1][col-1]
+  
+   def __repr__(self):
+       outStr = ""
+       for i in range(self.rows):
+           outStr += 'Row %s = %s\n' % (i+1, self.matrix[i])
+       return outStr
+  
+  
+#  Create a matrix for our spreadsheet. This will hold the positions 
+#  of each cell. 
+b = matrix(21, 11) 
+c = [] 
+
+colnums = range(65, 75)
+for x in colnums: 
+  c.append(chr(x))    
+
+# Set the column headings 
+for a in range(2, 12):  
+  b.setitem(1, a, c[a-2]) 
+
+# Set the row headings 
+for e in range(2, 22): 
+  b.setitem(e, 1, e-1) 
+
+
+
+
+
 # A cell class 
+# Note - Look at removing the code for the positions of the neighbouring 
+# cells. These could be found by a dict lookup instead. Similarly, the 
+# values in those cells could be looked up as well. 
 class cell(object): 
    def init(self, scr):
       self.scr = scr   

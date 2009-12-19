@@ -10,7 +10,7 @@
 # This matrix is a list of lists
 # Column and row numbers start with 1
   
-class Matrix(object):
+class matrix(object):
    def __init__(self, rows, cols):
        self.rows = rows
        self.cols = cols
@@ -26,9 +26,9 @@ class Matrix(object):
    def setitem(self, row, col, v):
        self.matrix[row-1][col-1] = v
   
-   def getitem(self, row, col):
+   def getitem(self, row, col):       
        return self.matrix[row-1][col-1]
-  
+       
    def __repr__(self):
        outStr = ""
        for i in range(self.rows):
@@ -39,7 +39,7 @@ class Matrix(object):
 # Run the code  
 # First (left) parameter is the rows, and the second (right) parameter 
 # is the columns.   
-a = Matrix(4,4)
+a = matrix(4,4)
 print a
 a.setitem(3,4,'55.75')
 print a
@@ -48,28 +48,30 @@ print a
 print a.getitem(3,4)
 
 
-#b = Matrix(rows=21, cols=11) 
-b = Matrix(21, 11) 
+b = matrix(21, 11) 
 c = [] 
 
 colnums = range(65, 75)
 for x in colnums: 
   c.append(chr(x))    
 
-rindex = range(2, 22)
-cindex = range(2, 12) 
-
 # Set the column headings 
-for a in cindex: 
+for a in range(2, 12):  
   b.setitem(1, a, c[a-2]) 
 
 # Set the row headings 
-for e in rindex: 
+for e in range(2, 22): 
   b.setitem(e, 1, e-1) 
-
-#b.setitem(1, 2, c[0]) 
       
 print b  
+
+b.setitem(2, 2, 17) 
+b.setitem(2, 3, 25) 
+a = b.getitem(2, 2) + b.getitem(2, 3) 
+#b.setitem(2, 4, a) 
+b.setitem(2, 4, (b.getitem(2, 2) + b.getitem(2, 3))) 
+print b 
+
 
 
 

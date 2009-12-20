@@ -28,10 +28,10 @@ class matrix(object):
    def setitem(self, row, col, v):
        self.matrix[row-1][col-1] = v
        
-   def setrange(self, rows, cols, data): 
+   def setrange(self, rows, cols, data):        
        for x in range(rows[0], rows[1]): 
           for y in range(cols[0], cols[1]):
-             for z in list(data):  
+             for z in data[x-1:y-1]: 
                 self.matrix[x-1][y-1] = z      
   
    def getitem(self, row, col):       
@@ -104,10 +104,13 @@ for x in colnums:
   l.append(s) 
 
 c.setrange((1,2), (2,12), l)      
+
+rownums = range(1, 22)
+c.setrange((3,22), (1,2), rownums)      
                        
 #d = c.getrange((1,2), (2,11))                      
 
-print l 
+print l
 
 print c 
 

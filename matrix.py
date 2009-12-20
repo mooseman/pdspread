@@ -63,14 +63,24 @@ for a in range(2, 12):
 for e in range(2, 22): 
   b.setitem(e, 1, e-1) 
       
+# Now, store the cell positions in the matrix 
+for r in range(2, 22): 
+  for c in range(2, 12): 
+     b.setitem(r, c, (r, (c*7)-7))  
+      
+#             
+            
+            
 print b  
 
-b.setitem(2, 2, 17) 
+'''b.setitem(2, 2, 17) 
 b.setitem(2, 3, 25) 
 a = b.getitem(2, 2) + b.getitem(2, 3) 
 #b.setitem(2, 4, a) 
 b.setitem(2, 4, (b.getitem(2, 2) + b.getitem(2, 3))) 
-print b 
+print b  ''' 
+
+
 
 
 

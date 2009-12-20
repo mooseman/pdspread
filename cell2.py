@@ -198,8 +198,10 @@ for a in range(2, 12):
 for e in range(2, 22): 
   b.setitem(e, 1, e-1) 
 
-
-
+# Now, store the cell positions in the matrix 
+for r in range(2, 22): 
+  for c in range(2, 12): 
+     b.setitem(r, c, (r, (c*7)-7))       
 
 
 # A cell class 
@@ -216,10 +218,7 @@ class cell(object):
       self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
       self.scr.refresh()
       # The name of the cell (e.g. "A1") 
-      if x > self.width+1: 
-         self.name = str(num2str(x-self.width) + str(y-1)) 
-      else: 
-         self.name = str(num2str(x) + str(y-1))              
+      self.name = str(num2str(x-self.width) + str(y-1))                    
       # Store the cell POSITIONS bordering this cell              
       if getpart(self.name, "A") != "A": 
           self.leftpos = (y, x-self.width)          
@@ -309,7 +308,7 @@ class sheet(cell):
        self.scr.move(2, 7) 
        # Create a cell 
        a = cell() 
-       a.init(self.scr) 
+       a.init(self.scr)        
        # Look at adding headings code here to create the column and 
        # row headings. 
               

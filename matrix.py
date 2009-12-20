@@ -9,6 +9,8 @@
 # A simple matrix
 # This matrix is a list of lists
 # Column and row numbers start with 1
+
+import string   
   
 class matrix(object):
    def __init__(self, rows, cols):
@@ -25,10 +27,24 @@ class matrix(object):
   
    def setitem(self, row, col, v):
        self.matrix[row-1][col-1] = v
+       
+   def setrange(self, rows, cols, data): 
+       for x in range(rows[0], rows[1]): 
+          for y in range(cols[0], cols[1]):
+             for z in list(data):  
+                self.matrix[x-1][y-1] = z      
   
    def getitem(self, row, col):       
        return self.matrix[row-1][col-1]
        
+   def getrange(self, rows, cols): 
+       reslist = []
+       for x in range(rows[0], rows[1]+1): 
+          for y in range(cols[0], cols[1]+1):    
+             reslist.append(self.matrix[x-1][y-1])
+             #return list(self.matrix[x-1][y-1]) 
+             return reslist 
+                                        
    def __repr__(self):
        outStr = ""
        for i in range(self.rows):
@@ -53,7 +69,8 @@ c = []
 
 colnums = range(65, 75)
 for x in colnums: 
-  c.append(chr(x))    
+  s = chr(x) 
+  c.append(s.center(7))  
 
 # Set the column headings 
 for a in range(2, 12):  
@@ -67,11 +84,8 @@ for e in range(2, 22):
 for r in range(2, 22): 
   for c in range(2, 12): 
      b.setitem(r, c, (r, (c*7)-7))  
-      
-#             
-            
-            
-print b  
+                                           
+#print b  
 
 '''b.setitem(2, 2, 17) 
 b.setitem(2, 3, 25) 
@@ -79,6 +93,24 @@ a = b.getitem(2, 2) + b.getitem(2, 3)
 #b.setitem(2, 4, a) 
 b.setitem(2, 4, (b.getitem(2, 2) + b.getitem(2, 3))) 
 print b  ''' 
+
+
+c = matrix(21, 11) 
+l = []
+colnums = range(65, 75)
+
+for x in colnums: 
+  s = chr(x) 
+  l.append(s) 
+
+c.setrange((1,2), (2,12), l)      
+                       
+#d = c.getrange((1,2), (2,11))                      
+
+print l 
+
+print c 
+
 
 
 

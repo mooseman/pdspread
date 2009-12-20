@@ -176,35 +176,64 @@ def str2yx(s):
 # NOTE! THE WINDOW.CHGAT FUNCTION IS EXTREMELY USEFUL. IT APPLIES AN 
 # ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
 
-class cell(object): 
-    def init(self): 
-       # Methods to store the cells bordering this cell. 
-       self.left = self.right = self.above = self.below = None 
-       # Store data 
-       self.data = {} 
-       # A cell's name (e.g. E5)  
-       self.addr = None 
-       # A cell's position (e.g. 7, 28) 
-       self.pos = None 
+
+# A matrix class 
+class matrix(object):
+   def __init__(self, rows, cols):
+       self.rows = rows
+       self.cols = cols
        
-    # Set a given attribute    
-    def set(self, attr, val): 
-       if hasattr(self, attr): 
-          setattr(self, attr, val)  
-       else: 
-          pass    
-          
-    def move(self, name): 
-       if name == self.addr: 
-          self.scr.move(self.pos[0], self.pos[1]) 
-          self.scr.refresh() 
-       else: 
-          pass    
-                           
-    def display(self, attr): 
-       (y, x) = self.scr.getyx()           
-       strattr = str(getattr(self, attr)) 
-       self.scr.addstr(y, x, str(strattr) ) 
+       # initialize matrix and fill with zeroes
+       self.matrix = []
+       for i in range(rows):
+           ea_row = []
+           for j in range(cols):
+               ea_row.append(0)
+           self.matrix.append(ea_row)
+  
+   def setitem(self, row, col, v):
+       self.matrix[row-1][col-1] = v
+  
+   def getitem(self, row, col):
+       return self.matrix[row-1][col-1]
+  
+   def __repr__(self):
+       outStr = ""
+       for i in range(self.rows):
+           outStr += 'Row %s = %s\n' % (i+1, self.matrix[i])
+       return outStr
+  
+  
+# Create a matrix for our spreadsheet. This will hold the positions
+# of each cell.
+b = matrix(21, 11)
+c = []
+ 
+colnums = range(65, 75)
+for x in colnums:
+  s = chr(x) 
+  c.append(s.center(7))       
+ 
+# Set the column headings
+for a in range(2, 12):
+  b.setitem(1, a, c[a-2])
+ 
+# Set the row headings
+for e in range(2, 22):
+  b.setitem(e, 1, e-1)
+ 
+# Now, store the cell positions in the matrix
+for r in range(2, 22):
+  for c in range(2, 12):
+     b.setitem(r, c, (r, (c*7)-7)) 
+
+# Now, do a matrix with just the positions - no headings. 
+p = matrix(21, 11) 
+
+for r in range(1, 22):
+  for c in range(1, 12):
+     p.setitem(r, c, (r, (c*7)-7)) 
+
         
                                             
 #  A spreadsheet class. This class also handles keystrokes  

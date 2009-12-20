@@ -154,9 +154,9 @@ def str2yx(s):
 # ATTRIBUTE TO A SELECTED RANGE OF CELLS.  
 
 
-  
+# A matrix class 
 class matrix(object):
-   def __init__(self, rows, cols):
+   def init(self, rows, cols):
        self.rows = rows
        self.cols = cols
        
@@ -170,9 +170,23 @@ class matrix(object):
   
    def setitem(self, row, col, v):
        self.matrix[row-1][col-1] = v
-  
+       
+   def setrange(self, rows, cols, data): 
+       for x in range(rows[0], rows[1]): 
+          for y in range(cols[0], cols[1]):
+             for z in list(data):  
+                self.matrix[x-1][y-1] = z  
+                   
    def getitem(self, row, col):
        return self.matrix[row-1][col-1]
+       
+   def getrange(self, rows, cols): 
+       reslist = []
+       for x in range(rows[0], rows[1]): 
+          for y in range(cols[0], cols[1]):    
+             reslist.append(self.matrix[x-1][y-1])
+             #return list(self.matrix[x-1][y-1]) 
+             return reslist 
   
    def __repr__(self):
        outStr = ""
@@ -181,119 +195,49 @@ class matrix(object):
        return outStr
   
   
-#  Create a matrix for our spreadsheet. This will hold the positions 
-#  of each cell. 
-b = matrix(21, 11) 
-c = [] 
-
+# Create a matrix for our spreadsheet. This will hold the positions
+# of each cell.
+b = matrix() 
+b.init(21, 11)
+c = []
+ 
 colnums = range(65, 75)
-for x in colnums: 
-  c.append(chr(x))    
+for x in colnums:
+  s = chr(x) 
+  c.append(s.center(7))       
+ 
+# Set the column headings
+for a in range(2, 12):
+  b.setitem(1, a, c[a-2])
+ 
+# Set the row headings
+for e in range(2, 22):
+  b.setitem(e, 1, e-1)
+ 
+# Now, store the cell positions in the matrix
+for r in range(2, 22):
+  for c in range(2, 12):
+     b.setitem(r, c, (r, (c*7)-7)) 
 
-# Set the column headings 
-for a in range(2, 12):  
-  b.setitem(1, a, c[a-2]) 
+# Now, do a matrix with just the positions - no headings. 
+p = matrix()
+p.init(21, 11) 
 
-# Set the row headings 
-for e in range(2, 22): 
-  b.setitem(e, 1, e-1) 
-
-# Now, store the cell positions in the matrix 
-for r in range(2, 22): 
-  for c in range(2, 12): 
-     b.setitem(r, c, (r, (c*7)-7))       
+for r in range(1, 22):
+  for c in range(1, 12):
+     p.setitem(r, c, (r, (c*7)-7)) 
 
 
-# A cell class 
-# Note - Look at removing the code for the positions of the neighbouring 
-# cells. These could be found by a dict lookup instead. Similarly, the 
-# values in those cells could be looked up as well. 
-class cell(object): 
-   def init(self, scr):
-      self.scr = scr   
-      self.width = 6 
-      (y, x) = self.scr.getyx() 
-      # The position of the cell
-      self.pos = (y, x)                                   
-      self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
-      self.scr.refresh()
-      # The name of the cell (e.g. "A1") 
-      self.name = str(num2str(x-self.width) + str(y-1))                    
-      # Store the cell POSITIONS bordering this cell              
-      if getpart(self.name, "A") != "A": 
-          self.leftpos = (y, x-self.width)          
-      else: 
-          self.leftpos = None    
-      if getpart(self.name, "N") != 1: 
-          self.abovepos = (y-1, x)          
-      else: 
-          self.abovepos = None       
-      self.belowpos = (y+1, x) 
-      self.rightpos = (y, x+self.width)   
-              
-      # Store data 
-      self.data = {}       
-      self.scr.refresh() 
-                    
-   # Set a given attribute    
-   def set(self, attr, val): 
-      if hasattr(self, attr): 
-          setattr(self, attr, val)  
-      else: 
-          pass  
-       
-   # Move to another cell 
-   def cellmove(self, dir): 
-      # First, go to the "home" position of the cell 
-      self.scr.move(self.pos[0], self.pos[1]) 
-      (y, x) = self.scr.getyx() 
-      self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
-      self.scr.refresh()                                
-      if dir.upper() == "L": 
-          if self.leftpos != None:              
-             self.scr.move(self.leftpos[0], self.leftpos[1]) 
-             (y, x) = self.scr.getyx() 
-             self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
-             a = cell() 
-             a.init(self.scr)
-             self.scr.refresh()                                
-          else: 
-             pass              
-      elif dir.upper() == "R":           
-          self.scr.move(self.rightpos[0], self.rightpos[1]) 
-          (y, x) = self.scr.getyx() 
-          self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
-          a = cell() 
-          a.init(self.scr)
-          self.scr.refresh() 
-      elif dir.upper() == "U": 
-          if self.abovepos != None:              
-             self.scr.move(self.abovepos[0], self.abovepos[1]) 
-             (y, x) = self.scr.getyx() 
-             self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
-             a = cell() 
-             a.init(self.scr)
-             self.scr.refresh() 
-          else: 
-             pass                 
-      elif dir.upper() == "D":           
-          self.scr.move(self.belowpos[0], self.belowpos[1]) 
-          (y, x) = self.scr.getyx() 
-          self.scr.chgat(y, x, self.width, curses.A_STANDOUT)   
-          a = cell() 
-          a.init(self.scr)
-          self.scr.refresh() 
-                                                                                                                    
-   def display(self, attr): 
-      (y, x) = self.scr.getyx()           
-      strattr = str(getattr(self, attr)) 
-      self.scr.addstr(y, x, str(strattr) ) 
-      
-      
-class sheet(cell):
+
+# A sheet class.  
+class sheet(matrix):
     def __init__(self, scr): 
        self.scr = scr  
+       # A dict to store cell names, positions, contents. 
+       self.celldict = {}           
+       # Temporary storage for cell contents. 
        self.stuff = "" 
+       
        (y, x) = self.scr.getyx()           
        self.width = 6 
        # A variable to save the line-number of text. 
@@ -303,12 +247,22 @@ class sheet(cell):
           
        # calculate the number of columns 
        # We subtract self.width to cater for the width of the row headings
-       self.numcols = int((self.max_x-self.width)/self.width)                        
-       curses.noecho() 
+       self.numcols = int((self.max_x-self.width)/self.width)   
+       
+       curses.noecho()
+       
+       # Create matrices for the headings 
+       a = matrix()
+       a.init(21, 11) 
+       a.setrange((1,2), (2,11), [chr(x) for x in range(65,74)])
+                             
+       b = a.getrange((1,2), (2,11))                      
        self.scr.move(2, 7) 
-       # Create a cell 
-       a = cell() 
-       a.init(self.scr)        
+       (y, x) = self.scr.getyx()           
+       self.scr.addstr(y, x, str(b))                                  
+       self.scr.refresh()
+       
+       
        # Look at adding headings code here to create the column and 
        # row headings. 
               
@@ -323,6 +277,7 @@ class sheet(cell):
        a = cell() 
        a.init(self.scr)        
        a.cellmove(mydir) 
+    
     
     def action(self):  
        while (1): 

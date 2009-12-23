@@ -37,16 +37,23 @@ class matrix(cell):
        for row in range(self.rows):
            for col in range(self.cols):
                yield (self.matrix, row, col)  
+               
+   def next(self): 
+       pass             
            
    def setitem(self, row, col, v):
        self.matrix[row-1][col-1] = v
        
-   def setrange(self, rows, cols, data):  
-       for x in range(rows[0], rows[1]): 
-          for y in range(cols[0], cols[1]):
-             for z in data:  
-                self.matrix[x-1][y-1] = itertools.izip(x, y, z)
-                
+   def setrange(self, rows, cols, data):
+       #while True:  
+         try:  
+            for x, y, z in itertools.izip(range(rows[0], rows[1]), 
+               range(cols[0], cols[1]), data): 
+                  self.setitem(x, y, z) 
+                  #self.matrix[x-1][y-1] = z 
+         except StopIteration: 
+            pass       
+                           
    def getitem(self, row, col):       
        return self.matrix[row-1][col-1]
        

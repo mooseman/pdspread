@@ -11,16 +11,9 @@
 # Column and row numbers start with 1
 
 import string, itertools    
-
-class cell(object): 
-   def __init__(self, data): 
-      self.data = str(data) 
-      
-   def __repr__(self): 
-      return self.data
       
 
-class matrix(cell):
+class matrix(object):
    def __init__(self, rows, cols):
        self.rows = rows
        self.cols = cols
@@ -37,10 +30,7 @@ class matrix(cell):
        for row in range(self.rows):
            for col in range(self.cols):
                yield (self.matrix, row, col)  
-               
-   def next(self): 
-       pass 
-           
+                          
    def setitem(self, row, col, v):
        self.matrix[row-1][col-1] = v
        
@@ -69,47 +59,7 @@ class matrix(cell):
 # Run the code  
 # First (left) parameter is the rows, and the second (right) parameter 
 # is the columns.   
-a = matrix(4,4)
-print a
-a.setitem(3,4,'55.75')
-print a
-a.setitem(2,3,'19.1')
-print a
-print a.getitem(3,4)
-
-
-b = matrix(21, 11) 
-c = [] 
-
-colnums = range(65, 75)
-for x in colnums: 
-  s = chr(x) 
-  c.append(s.center(7))  
-
-# Set the column headings 
-for a in range(2, 12):  
-  b.setitem(1, a, c[a-2]) 
-
-# Set the row headings 
-for e in range(2, 22): 
-  b.setitem(e, 1, e-1) 
-      
-# Now, store the cell positions in the matrix 
-for r in range(2, 22): 
-  for c in range(2, 12): 
-     b.setitem(r, c, (r, (c*7)-7))  
-                                           
-#print b  
-
-'''b.setitem(2, 2, 17) 
-b.setitem(2, 3, 25) 
-a = b.getitem(2, 2) + b.getitem(2, 3) 
-#b.setitem(2, 4, a) 
-b.setitem(2, 4, (b.getitem(2, 2) + b.getitem(2, 3))) 
-print b  ''' 
-
-
-c = matrix(5, 5) 
+c = matrix(6, 6) 
 l = []
 colnums = range(65, 70)
 
@@ -122,7 +72,6 @@ c.setrange((1,2), (2,7), l)
 rownums = range(1, 6)
 c.setrange((2,7), (1,2), rownums)      
                        
-#d = c.getrange((1,2), (2,11))                      
 
 print l
 print rownums 

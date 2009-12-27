@@ -33,10 +33,14 @@ class matrix(object):
    def setitem(self, row, col, v):
        self.matrix[row-1][col-1] = v
   
-   def setrange(self, rows, cols, data):                     
-       for x, y, z in zip(rows[0:1], cols[0:1], data):               
-          self.setitem(x, y, z)                     
-  
+   def setrange(self, rows, cols, data):         
+       cells = list(itertools.product(range(rows[0], rows[1]), 
+          range(cols[0], cols[1]) ) ) 
+       mydata = list(data)    
+       mylist = zip(cells, mydata)       
+       for x in mylist:
+           self.setitem(x[0][0], x[0][1], x[1])                    
+       
    def getitem(self, row, col):
        return self.matrix[row-1][col-1]
   

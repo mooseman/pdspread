@@ -35,8 +35,19 @@ class matrix(object):
        self.matrix[row-1][col-1] = v
        
    def setrange(self, rows, cols, data):                     
-       for x, y, z in zip(rows[0:1], cols[0:1], data):               
-          self.setitem(x, y, z)                     
+       cells = list(itertools.product(range(rows[0], rows[1]), 
+          range(cols[0], cols[1]) ) ) 
+       mydata = list(data)    
+       mylist = zip(cells, mydata)
+       print mylist 
+       for x in mylist:
+           self.setitem(x[0][0], x[0][1], x[1]) 
+           
+       #print self
+       
+       #print zip(cells, mydata)
+       
+       #print cells, mydata  
                                    
    def getitem(self, row, col):       
        return self.matrix[row-1][col-1]
@@ -72,9 +83,8 @@ c.setrange((1,2), (2,7), l)
 rownums = range(1, 6)
 c.setrange((2,7), (1,2), rownums)      
                        
-
-print l
-print rownums 
+#print l
+#print rownums 
 print c 
 
 

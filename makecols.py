@@ -38,20 +38,49 @@ class page(object):
      # The letter of the current rightmost column.  
      # Note - need to later update this to cater for multi-letter 
      # column names. 
-     self.lastcol = self.collist[len(self.collist)-1] 
+     self.total_colwidths = sum(self.colwidths)          
      self.newcol = num2str(len(self.collist)+1) 
-     print self.lastcol, self.newcol   
-     
+     # If the totsl column width is less than the screen width, add 
+     # as many columns as will fit in the screen width. 
+     while (self.total_colwidths + self.defaultwidth) <= self.scrwidth:        
+           self.newcol = num2str(len(self.collist)+1)          
+           # Add the new columns to the lists
+           self.collist.append(self.newcol) 
+           self.colwidths.append(self.defaultwidth) 
+           self.total_colwidths = sum(self.colwidths)
+                        
   # Remove cols from the lists until the width is the screen width 
-  # or less.    
-  def remove(self):     
-     pass 
-          
-  # A refresh method to recalculate the number of columns on the 
-  # screen when a column has had its width changed.       
+  # or less. This method actually "removes" columns by iterating over 
+  # the columns from left to right, keeping them while the total column 
+  # width is less than the screen width.     
+  def remove(self):        
+     self.newcollist = self.newcolwidths = [] 
+     self.total_colwidths = 0 
+     # A list to hold the *indices* of the column widths, so we can 
+     # easily iterate along that list.
+     self.indexlist = list(range(0, len(self.colwidths)-1))     
+     
+     for i in self.indexlist:        
+        if (self.total_colwidths + self.colwidths[i]) <= self.scrwidth: 
+           # Add the new columns to the lists
+           self.newcollist.append(self.collist[i]) 
+           self.newcolwidths.append(self.colwidths[i])
+           self.total_colwidths += self.colwidths[i] 
+        else: 
+           break            
+     # Set the values of our lists to the newly-created ones.           
+     self.collist = self.newcollist 
+     self.colwidths = self.newcolwidths             
+                              
+  # A refresh method to test the total column widths and recalculate 
+  # how many columns to display on the screen.    
   def refresh(self):       
-     pass 
-  
+     self.total_colwidths = sum(self.colwidths)             
+     if self.total_colwidths < self.scrwidth: 
+        self.add() 
+     else: 
+        self.remove()    
+     
   # A method to change the width of a column.    
   def setwidth(self, col, width): 
      if col in self.collist: 
@@ -66,9 +95,16 @@ class page(object):
 
 # Run the code 
 a = page(80, 7)
-a.setwidth('C', 4) 
-a.setwidth('E', 11) 
-a.add() 
+a.setwidth('A', 1) 
+a.setwidth('B', 1) 
+a.setwidth('C', 1)
+a.setwidth('D', 1)
+a.setwidth('E', 1)
+a.setwidth('F', 1)
+a.setwidth('G', 1)
+a.refresh() 
 a.display() 
+#a.refresh() 
+#a.display() 
 
 

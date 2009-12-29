@@ -86,7 +86,7 @@ class matrix(cell):
    def __repr__(self):
        outStr = ""
        for i in range(self.rows):
-           outStr += 'Row %s = %s\n' % (i+1, self.matrix[i])
+           outStr += str(self.matrix[i]) + "\n"   
        return outStr
   
                                                        
@@ -105,8 +105,23 @@ class sheet(matrix):
        self.colheads = list(chr(x) for x in range(65,76)) 
        self.rowheads = list(range(1,21))  
        a.setrange((1,2), (2,12), self.colheads)      
-       a.setrange((2,22), (1,2), self.rowheads)      
-       self.scr.addstr(0, 0, str(a) )                      
+       a.setrange((2,22), (1,2), self.rowheads)   
+       # Another matrix for the cell coordinates. 
+       b = matrix(8,5) 
+       coords = list(itertools.product(range(0, 8), 
+          range(0, 5) ) ) 
+       b.setrange((1,9), (1,6), coords)   
+              
+       '''b = matrix(21,11) 
+       coords = list(itertools.product(range(0, 22), 
+          range(0, 11) ) ) 
+       b.setrange((1,22), (1,11), coords) '''   
+       
+       # Display the matrix. Note - at present, this only displays the
+       # matrix as a text string. We need to display the "live" matrix 
+       # so that we can interact with it.    
+       #self.scr.addstr(0, 0, str(a) )                      
+       self.scr.addstr(0, 0, str(b) )                      
               
        self.scr.refresh()	    
           

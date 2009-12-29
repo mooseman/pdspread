@@ -111,6 +111,18 @@ class sheet(matrix):
        coords = list(itertools.product(range(0, 8), 
           range(0, 5) ) ) 
        b.setrange((1,9), (1,6), coords)   
+       # A third matrix for cell names ("C5", "C6", ...)  
+       # This matrix has 7 rows and 5 cols. It contains the cell names 
+       # "A1" to "G5"       
+       c = matrix(7,5)                      
+       # Doing the cell names like this ensures that we get the 
+       # transpose of what itertools.product would give us (which is 
+       # not what we want here). 
+       cellnames = list( str(y + str(x)) for x in self.rowheads[0:7] for 
+          y in self.colheads[0:5])                             
+       c.setrange( (1,8), (1,6), cellnames) 
+       #c.setrange((1,8), (1,6), cellnames)        
+                     
               
        '''b = matrix(21,11) 
        coords = list(itertools.product(range(0, 22), 
@@ -121,7 +133,7 @@ class sheet(matrix):
        # matrix as a text string. We need to display the "live" matrix 
        # so that we can interact with it.    
        #self.scr.addstr(0, 0, str(a) )                      
-       self.scr.addstr(0, 0, str(b) )                      
+       self.scr.addstr(0, 0, str(c) )                      
               
        self.scr.refresh()	    
           

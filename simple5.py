@@ -3,15 +3,19 @@
 #  pdspread.py 
 #  A simple spreadsheet.  
 
+# This code is released to the public domain.  
+
 # Acknowledgement: This code would not have been possible without 
 # Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
 # that application is used here. Very many thanks to Andrew for 
 # doing that application!   
-# Also, *very many thanks* to those in pythonforum.org who have helped
+# Also, very many thanks to those in pythonforum.org who have helped
 # me with my questions there. In particular, Bill there supplied the
-# code used in the num2str function here.
+# code used in the num2str function here. 
+# Many thanks also to "bvdet" from bytes.com. The matrix code in this 
+# app is based on the code that he posted here -  
+# http://bytes.com/topic/python/answers/594203-please-how-create-matrix-python
  
-# This code is released to the public domain.  
 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    

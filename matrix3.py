@@ -82,7 +82,11 @@ c.setrange((1,2), (2,7), l)
 
 rownums = range(1, 6)
 c.setrange((2,7), (1,2), rownums)      
-                       
+        
+stuff = ["The", "quick", "brown", "fox", "jumps", "over", 
+   "the", "lazy", "dog"] 
+c.setrange((3,6), (3,6), stuff)   
+                                  
 #print l
 #print rownums 
 print c 

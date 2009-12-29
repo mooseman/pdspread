@@ -56,7 +56,7 @@ class cell(object):
       
                 
 # A matrix class 
-class matrix(object):
+class matrix(cell):
    def __init__(self, rows, cols):
        self.rows = rows
        self.cols = cols
@@ -99,12 +99,19 @@ class sheet(matrix):
        self.scr.scrollok(1)
        self.scr.idlok(1)  
        self.scr.setscrreg(0, 22)    
-       self.scr.move(2, 2)   
-       self.scr.clrtoeol()                          
+       self.scr.move(0, 0)   
+       # Create a matrix for the column and row headings. 
+       a = matrix(21,11) 
+       self.colheads = list(chr(x) for x in range(65,76)) 
+       self.rowheads = list(range(1,21))  
+       a.setrange((1,2), (2,12), self.colheads)      
+       a.setrange((2,22), (1,2), self.rowheads)      
+       self.scr.addstr(0, 0, str(a) )                      
+              
        self.scr.refresh()	    
           
     def move(self, dir):
-              
+       pass           
           
           
     # This function moves the cell highlight. It restores the old cell 
@@ -131,6 +138,7 @@ class sheet(matrix):
        c.setrange((3,6), (3,6), stuff)                        
        self.scr.addstr(2, 0, str(c) )                      
        self.scr.refresh()                                                                                   
+            
                                                                                                                                                                                                                                       
     def action(self):  
        while (1): 
@@ -143,7 +151,11 @@ class sheet(matrix):
              (y, x) = self.scr.getyx()              
              self.do_matrix()
              #self.scr.addstr(y, x, "test")                     
-             self.scr.refresh()                                    
+             self.scr.refresh()  
+          elif c==curses.KEY_F6: 
+             (y, x) = self.scr.getyx()                           
+             self.scr.addstr(y, x, str(self.colheads))                     
+             self.scr.refresh()                                                                 
           # Ctrl-G quits the app                  
           elif c==curses.ascii.BEL: 
              break                             

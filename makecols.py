@@ -53,24 +53,20 @@ class page(object):
   # or less. This method actually "removes" columns by iterating over 
   # the columns from left to right, keeping them while the total column 
   # width is less than the screen width.     
-  def remove(self):        
-     self.newcollist = self.newcolwidths = [] 
+  def remove(self):             
      self.total_colwidths = 0 
-     # A list to hold the *indices* of the column widths, so we can 
-     # easily iterate along that list.
-     self.indexlist = list(range(0, len(self.colwidths)-1))     
+     self.myindex = 0 
      
-     for i in self.indexlist:        
-        if (self.total_colwidths + self.colwidths[i]) <= self.scrwidth: 
-           # Add the new columns to the lists
-           self.newcollist.append(self.collist[i]) 
-           self.newcolwidths.append(self.colwidths[i])
-           self.total_colwidths += self.colwidths[i] 
+     for i in self.colwidths:        
+        while (self.total_colwidths + i) <= self.scrwidth: 
+           # Add the new columns to the lists           
+           self.total_colwidths += i 
+           self.myindex += 1
         else: 
            break            
      # Set the values of our lists to the newly-created ones.           
-     self.collist = self.newcollist 
-     self.colwidths = self.newcolwidths             
+     self.collist = self.collist[0:self.myindex+1] 
+     self.colwidths = self.colwidths[0:self.myindex+1]              
                               
   # A refresh method to test the total column widths and recalculate 
   # how many columns to display on the screen.    
@@ -95,13 +91,10 @@ class page(object):
 
 # Run the code 
 a = page(80, 7)
-a.setwidth('A', 1) 
-a.setwidth('B', 1) 
-a.setwidth('C', 1)
-a.setwidth('D', 1)
-a.setwidth('E', 1)
-a.setwidth('F', 1)
-a.setwidth('G', 1)
+a.setwidth('A', 20) 
+a.setwidth('B', 15) 
+a.setwidth('C', 15)
+a.setwidth('D', 20)
 a.refresh() 
 a.display() 
 #a.refresh() 

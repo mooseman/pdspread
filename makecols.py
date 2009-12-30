@@ -53,11 +53,15 @@ class page(object):
   # or less. This method actually "removes" columns by iterating over 
   # the columns from left to right, keeping them while the total column 
   # width is less than the screen width.    
-  def remove2(self):        
-     print sum(self.colwidths[0:5])                     
-     #self.colwidths = self.newcolwidths 
-     #self.collist = self.collist[0:len(self.colwidths)-1]     
-   
+  def remove2(self):  
+     self.newcolwidths = list(itertools.takewhile( (i,v in 
+       enumerate(self.colwidths) if sum(self.colwidths[0:i]) 
+         < self.scrwidth), self.colwidths))   
+       
+     '''self.newcolwidths = list(itertools.takewhile(lambda x: 
+         x+x < self.scrwidth, self.colwidths)) ''' 
+     self.colwidths = self.newcolwidths        
+        
   def remove(self):                  
      self.newcolwidths = [] 
      
@@ -77,7 +81,7 @@ class page(object):
      if self.total_colwidths < self.scrwidth: 
         self.add() 
      else: 
-        self.remove()    
+        self.remove2()    
      
   # A method to change the width of a column.    
   def setwidth(self, col, width): 

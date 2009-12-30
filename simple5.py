@@ -41,6 +41,7 @@ class cell(object):
        self.pos = None 
        # Set up the appearance of the cell
        self.width = 7
+       # Now, set up the cell "highlight" and refresh the screen. 
        self.scr.chgat(self.row, self.col, self.width, curses.A_STANDOUT)    
        self.scr.refresh()                   
        
@@ -49,9 +50,16 @@ class cell(object):
        setattr(self, attr, val)  
                      
     def move(self, name): 
-       self.scr.move(name[0], name[1]) 
+       (y, x) = self.scr.getyx() 
+       # Remove the highlight from the current coordinates. 
+       self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
        self.scr.refresh() 
-                                  
+       # Now move the highlight to the new coordinates. 
+       self.scr.move(name[0], name[1]) 
+       (y, x) = self.scr.getyx() 
+       self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
+       self.scr.refresh()  
+                                   
     def display(self, attr): 
        (y, x) = self.scr.getyx()           
        strattr = str(getattr(self, attr)) 
@@ -109,6 +117,9 @@ class sheet(matrix):
        # Create a cell
        self.cell = cell(self.scr, 1, 1, (1,7))         
        self.scr.refresh()	                         
+       self.cell.move((12, 40))       
+       self.scr.refresh()	                         
+       
        
        # Create a matrix for the column and row headings. 
        a = matrix(21,11) 
@@ -136,12 +147,7 @@ class sheet(matrix):
        coords = list( (y,x) for y in range(0,7) for x in range(0, 
            5*self.colwidth, self.colwidth) ) 
        d.setrange( (1,8), (1,6), coords)   
-                                                        
-       '''b = matrix(21,11) 
-       coords = list(itertools.product(range(0, 22), 
-          range(0, 11) ) ) 
-       b.setrange((1,22), (1,11), coords) '''   
-       
+                                                               
        # Display the matrix. Note - at present, this only displays the
        # matrix as a text string. We need to display the "live" matrix 
        # so that we can interact with it.    
@@ -150,36 +156,7 @@ class sheet(matrix):
        #self.cell.move((12, 40))       
        self.scr.refresh()	    
           
-    def move(self, dir):
-       pass           
-          
-          
-    # This function moves the cell highlight. It restores the old cell 
-    # to "normal" background, and highlights the new cell.             
-    def do_matrix(self):        
-       self.scr.move(2, 2)   
-       self.scr.refresh()
-       (y, x) = self.scr.getyx()    
-       c = matrix(6, 6) 
-       l = []
-       colnums = range(65, 70)
-
-       for x in colnums: 
-          s = chr(x) 
-          l.append(s) 
-
-       c.setrange((1,2), (2,7), l)      
-
-       rownums = range(1, 6)
-       c.setrange((2,7), (1,2), rownums)      
-       
-       stuff = ["The", "quick", "brown", "fox", "jumps", "over", 
-          "the", "lazy", "dog"] 
-       c.setrange((3,6), (3,6), stuff)                        
-       self.scr.addstr(2, 0, str(c) )                      
-       self.scr.refresh()                                                                                   
-            
-                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                  
     def action(self):  
        while (1): 
           (y, x) = self.scr.getyx()            

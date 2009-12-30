@@ -24,7 +24,8 @@ import sys, re, types, itertools, math, curses, curses.ascii, traceback, string,
 # 2 for tbound. Coords is a tuple of the coordinates of the cell. 
 # This is in the form (row, col).    
 class cell(object): 
-    def __init__(self, lbound, tbound, coords): 
+    def __init__(self, scr, lbound, tbound, coords): 
+       self.scr = scr
        self.lbound = lbound 
        self.tbound = tbound    
        self.coords = coords
@@ -45,14 +46,11 @@ class cell(object):
           setattr(self, attr, val)  
        else: 
           pass    
-          
+              
     def move(self, name): 
-       if name == self.addr: 
-          self.scr.move(self.pos[0], self.pos[1]) 
-          self.scr.refresh() 
-       else: 
-          pass    
-                           
+       self.scr.move(name[0], name[1]) 
+       self.scr.refresh() 
+                                  
     def display(self, attr): 
        (y, x) = self.scr.getyx()           
        strattr = str(getattr(self, attr)) 
@@ -103,7 +101,9 @@ class sheet(matrix):
        self.scr.scrollok(1)
        self.scr.idlok(1)  
        self.scr.setscrreg(0, 22)    
-       self.scr.move(0, 0)   
+       self.scr.move(0, 0)  
+       # Create a cell
+       self.cell = cell(self.scr, 1, 1, (1,7))         
        # Set the default column width. 
        self.colwidth = 7        
        # Create a matrix for the column and row headings. 
@@ -143,7 +143,7 @@ class sheet(matrix):
        # so that we can interact with it.    
        #self.scr.addstr(0, 0, str(a) )                      
        self.scr.addstr(0, 0, str(d) )                      
-              
+       self.cell.move((12, 40))       
        self.scr.refresh()	    
           
     def move(self, dir):

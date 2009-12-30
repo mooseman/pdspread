@@ -13,10 +13,10 @@ def test(num):
 #print test(10) 
 
 def test2(num): 
-   return [ l[0:x] for x in range(0, len(l)-1) if sum(l[0:x]) <= num]  
-         
+   return [ l[0:x] for x in range(0, len(l)-1) if sum(l[0:x]) <= num]           
 #  Run the code 
 print test2(10) 
+         
          
 
 

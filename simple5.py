@@ -39,14 +39,15 @@ class cell(object):
        self.addr = None 
        # A cell's position (e.g. 7, 28) 
        self.pos = None 
+       # Set up the appearance of the cell
+       self.width = 7
+       self.scr.chgat(self.row, self.col, self.width, curses.A_STANDOUT)    
+       self.scr.refresh()                   
        
     # Set a given attribute    
     def set(self, attr, val): 
-       if hasattr(self, attr): 
-          setattr(self, attr, val)  
-       else: 
-          pass    
-              
+       setattr(self, attr, val)  
+                     
     def move(self, name): 
        self.scr.move(name[0], name[1]) 
        self.scr.refresh() 
@@ -101,11 +102,14 @@ class sheet(matrix):
        self.scr.scrollok(1)
        self.scr.idlok(1)  
        self.scr.setscrreg(0, 22)    
-       self.scr.move(0, 0)  
-       # Create a cell
-       self.cell = cell(self.scr, 1, 1, (1,7))         
        # Set the default column width. 
        self.colwidth = 7        
+       # Move to the origin. 
+       self.scr.move(0, 0)                
+       # Create a cell
+       self.cell = cell(self.scr, 1, 1, (1,7))         
+       self.scr.refresh()	                         
+       
        # Create a matrix for the column and row headings. 
        a = matrix(21,11) 
        self.colheads = list(chr(x) for x in range(65,76)) 
@@ -142,8 +146,8 @@ class sheet(matrix):
        # matrix as a text string. We need to display the "live" matrix 
        # so that we can interact with it.    
        #self.scr.addstr(0, 0, str(a) )                      
-       self.scr.addstr(0, 0, str(d) )                      
-       self.cell.move((12, 40))       
+       #self.scr.addstr(0, 0, str(d) )                      
+       #self.cell.move((12, 40))       
        self.scr.refresh()	    
           
     def move(self, dir):

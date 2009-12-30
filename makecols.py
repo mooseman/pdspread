@@ -42,7 +42,7 @@ class page(object):
      self.newcol = num2str(len(self.collist)+1) 
      # If the totsl column width is less than the screen width, add 
      # as many columns as will fit in the screen width. 
-     while (self.total_colwidths + self.defaultwidth) <= self.scrwidth:        
+     while (self.total_colwidths + self.defaultwidth) < self.scrwidth:        
            self.newcol = num2str(len(self.collist)+1)          
            # Add the new columns to the lists
            self.collist.append(self.newcol) 
@@ -52,22 +52,24 @@ class page(object):
   # Remove cols from the lists until the width is the screen width 
   # or less. This method actually "removes" columns by iterating over 
   # the columns from left to right, keeping them while the total column 
-  # width is less than the screen width.     
-  def remove(self):             
-     self.total_colwidths = 0 
-     self.myindex = 0 
+  # width is less than the screen width.    
+  def remove2(self):        
+     print sum(self.colwidths[0:5])                     
+     #self.colwidths = self.newcolwidths 
+     #self.collist = self.collist[0:len(self.colwidths)-1]     
+   
+  def remove(self):                  
+     self.newcolwidths = [] 
      
-     for i in self.colwidths:        
-        while (self.total_colwidths + i) <= self.scrwidth: 
-           # Add the new columns to the lists           
-           self.total_colwidths += i 
-           self.myindex += 1
-        else: 
-           break            
-     # Set the values of our lists to the newly-created ones.           
-     self.collist = self.collist[0:self.myindex+1] 
-     self.colwidths = self.colwidths[0:self.myindex+1]              
-                              
+     for i, v in enumerate(self.colwidths): 
+        if sum(self.colwidths[0:i]) + v < self.scrwidth:         
+           self.newcolwidths.append(v)            
+        else:
+           break
+     # Set the values of our lists to the newly-created ones.
+     self.collist = self.collist[0:i]
+     self.colwidths = self.newcolwidths 
+                                  
   # A refresh method to test the total column widths and recalculate 
   # how many columns to display on the screen.    
   def refresh(self):       

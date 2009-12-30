@@ -104,6 +104,8 @@ class sheet(matrix):
        self.scr.idlok(1)  
        self.scr.setscrreg(0, 22)    
        self.scr.move(0, 0)   
+       # Set the default column width. 
+       self.colwidth = 7        
        # Create a matrix for the column and row headings. 
        a = matrix(21,11) 
        self.colheads = list(chr(x) for x in range(65,76)) 
@@ -125,9 +127,12 @@ class sheet(matrix):
        cellnames = list( str(y + str(x)) for x in self.rowheads[0:7] for 
           y in self.colheads[0:5])                             
        c.setrange( (1,8), (1,6), cellnames) 
-       #c.setrange((1,8), (1,6), cellnames)        
-                     
-              
+       # A matrix for the initial cells and their (y,x) coordinates. 
+       d = matrix(7,5) 
+       coords = list( (y,x) for y in range(0,7) for x in range(0, 
+           5*self.colwidth, self.colwidth) ) 
+       d.setrange( (1,8), (1,6), coords)   
+                                                        
        '''b = matrix(21,11) 
        coords = list(itertools.product(range(0, 22), 
           range(0, 11) ) ) 
@@ -137,7 +142,7 @@ class sheet(matrix):
        # matrix as a text string. We need to display the "live" matrix 
        # so that we can interact with it.    
        #self.scr.addstr(0, 0, str(a) )                      
-       self.scr.addstr(0, 0, str(c) )                      
+       self.scr.addstr(0, 0, str(d) )                      
               
        self.scr.refresh()	    
           

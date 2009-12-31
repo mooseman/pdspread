@@ -24,10 +24,11 @@ import sys, re, types, itertools, math, curses, curses.ascii, traceback, string,
 # 2 for tbound. Coords is a tuple of the coordinates of the cell. 
 # This is in the form (row, col).    
 class cell(object): 
-    def __init__(self, scr, coords): 
-       self.scr = scr       
-       self.y = coords[0]
-       self.x = coords[1]
+    def __init__(self, scr): 
+       self.scr = scr     
+       (y, x) = self.scr.getyx() 
+       self.y = y 
+       self.x = x         
        # Methods to store the cells bordering this cell. 
        self.left = self.right = self.above = self.below = None 
        # Store data 
@@ -85,7 +86,31 @@ class cell(object):
        self.x = x
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
        self.scr.refresh()  
-                                   
+                         
+    # Write something in a cell and apply an attribute (curses.A_NORMAL, 
+    # curses.A_STANDOUT etc) to it. You can also apply alignment 
+    # (usually centering) here.     
+    # We will do a "range" version of this function to write a list of 
+    # text into a range of cells - just what is needed for headings and 
+    # so on.                          
+    def write(self, text, attr=None, align=None):    
+       # Apply alignment (if any) 
+       if align == None: 
+          self.text = text 
+       elif align == "center": 
+          self.text = text.center(self.width)  
+       else: 
+          pass                   
+       # Get the position of the cursor. 
+       (y, x) = self.scr.getyx() 
+       # Write the text, applying the attribute (if used) 
+       if attr == None: 
+          self.scr.addstr(y, x, str(self.text) ) 
+       else: 
+          self.scr.addstr(y, x, str(self.text), attr ) 
+       # Refresh the screen 
+       self.scr.refresh()                                      
+                                                            
     def display(self, attr): 
        (y, x) = self.scr.getyx()           
        strattr = str(getattr(self, attr)) 
@@ -143,18 +168,31 @@ class sheet(matrix):
        # Store any entered text. 
        self.stuff = ""             
        # Move to the origin. 
-       self.scr.move(0, 0)                
+       #self.scr.move(0, 0)                
+       self.scr.move(5, 10)                
        # Create a cell
-       self.cell = cell(self.scr, (1,7))         
-       self.cell.move("*")
+       self.cell = cell(self.scr)         
+       # Write something 
+       self.cell.write("Here is some text")   
+       
+       self.scr.move(7, 15)                
+       self.cell.write("Foo", curses.A_STANDOUT, "center")         
+              
+       #self.cell.move("*")
        self.scr.refresh() 	                         
                      
        # Create a matrix for the column and row headings. 
-       a = matrix(21,11) 
+       a = matrix(21,11)               
        self.colheads = list(chr(x) for x in range(65,76)) 
        self.rowheads = list(range(1,21))  
        a.setrange((1,2), (2,12), self.colheads)      
        a.setrange((2,22), (1,2), self.rowheads)   
+       # Apply attributes to the headings 
+       # First, center the text 
+       
+       
+       
+       
        # Another matrix for the cell coordinates. 
        b = matrix(8,5) 
        coords = list(itertools.product(range(0, 8), 

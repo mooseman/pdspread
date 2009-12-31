@@ -56,7 +56,12 @@ class cell(object):
     def enter(self): 
        pass 
        
-    # Move the cell in a given direction                      
+    # Move the cell in a given direction  
+    # Note - to get the desired handling of the Enter key, the crucial 
+    # setting is self.scr.leaveok(0). 
+    # Notice here that we have a "direction" of "*". This is used when 
+    # the Enter key is pressed. It moves the cursor to the beginning 
+    # of the cell (highlight).                       
     def move(self, dir): 
        self.dir = dir.upper() 
        #(y, x) = self.scr.getyx() 
@@ -192,11 +197,10 @@ class sheet(matrix):
           curses.echo()       
           
           c=self.scr.getch()		# Get a keystroke                                                                                  
-          if c in (curses.KEY_ENTER, 10):   
+          if c in (curses.KEY_ENTER, 10):                
              curses.noecho()                
              self.cell.move("*")
-             self.scr.refresh()
-             #pass
+             self.scr.refresh()                
           elif c==curses.KEY_UP:  
              curses.noecho()                
              self.cell.move("U")

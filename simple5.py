@@ -44,13 +44,18 @@ class cell(object):
        # Now, set up the cell "highlight" and refresh the screen. 
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
        #self.scr.addstr(self.y, self.x, str(self.y) + " " + str(self.x)  ) 
-       
+       self.scr.move(self.y, self.x)
        self.scr.refresh()                   
        
     # Set a given attribute    
     def set(self, attr, val): 
        setattr(self, attr, val)  
-
+       
+    # A dummy method to stop curses from moving the cell 
+    # when Enter is pressed. 
+    def enter(self): 
+       pass 
+       
     # Move the cell in a given direction                      
     def move(self, dir): 
        self.dir = dir.upper() 
@@ -62,8 +67,10 @@ class cell(object):
        elif self.dir == "U":    
           self.newy = self.y - 1 
        elif self.dir == "D":    
-          self.newy = self.y + 1
-       
+          self.newy = self.y + 1 
+       elif self.dir == "*": 
+          self.newx = self.x 
+          self.newy = self.y                     
        # Remove the highlight from the current coordinates. 
        (y, x) = self.scr.getyx() 
        self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
@@ -128,14 +135,19 @@ class sheet(matrix):
        curses.noecho() 
        self.scr.keypad(1)            
        self.scr.scrollok(1)
-       self.scr.idlok(1)  
+       self.scr.idlok(1) 
+       # Just added leaveok. 
+       self.scr.leaveok(0)                      
        self.scr.setscrreg(0, 22)    
        # Set the default column width. 
-       self.colwidth = 7        
+       self.colwidth = 7   
+       # Store any entered text. 
+       self.stuff = ""             
        # Move to the origin. 
        self.scr.move(0, 0)                
        # Create a cell
        self.cell = cell(self.scr, (1,7))         
+       self.cell.move("*")
        self.scr.refresh() 	                         
                      
        # Create a matrix for the column and row headings. 
@@ -177,10 +189,14 @@ class sheet(matrix):
     def action(self):  
        while (1): 
           (y, x) = self.scr.getyx()            
-          curses.echo()                           
+          curses.echo()       
+          
           c=self.scr.getch()		# Get a keystroke                                                                                  
-          if c in (curses.KEY_ENTER, 10):                
-             pass
+          if c in (curses.KEY_ENTER, 10):   
+             curses.noecho()                
+             self.cell.move("*")
+             self.scr.refresh()
+             #pass
           elif c==curses.KEY_UP:  
              curses.noecho()                
              self.cell.move("U")
@@ -211,10 +227,9 @@ class sheet(matrix):
              break                             
           elif 0<c<256:               
              c=chr(c)   
-             if x < self.max_x-2:  
-                self.stuff += c                           
-             else:                 
-                pass 
+             self.stuff += c                           
+          else: 
+             pass    
                                        
 #  Main loop       
 def main(stdscr):  

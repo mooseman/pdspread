@@ -28,7 +28,10 @@ class cell(object):
        self.scr = scr     
        (y, x) = self.scr.getyx() 
        self.y = y 
-       self.x = x         
+       self.x = x   
+       # Specify the leftmost column and topmost row.
+       self.lbound = 7
+       self.tbound = 2             
        # Methods to store the cells bordering this cell. 
        self.left = self.right = self.above = self.below = None 
        # Store data 
@@ -60,13 +63,17 @@ class cell(object):
     def move(self, dir): 
        self.dir = dir.upper() 
        #(y, x) = self.scr.getyx() 
-       if self.dir == "L": 
+       if self.dir == "L" and self.x-self.width >= self.lbound:           
           self.newx = self.x - self.width 
-       elif self.dir == "R":    
+       else: 
+          pass            
+       if self.dir == "R":    
           self.newx = self.x + self.width 
-       elif self.dir == "U":    
+       elif self.dir == "U" and self.y > self.tbound:    
           self.newy = self.y - 1 
-       elif self.dir == "D":    
+       else: 
+          pass    
+       if self.dir == "D":    
           self.newy = self.y + 1 
        elif self.dir == "*": 
           self.newx = self.x 

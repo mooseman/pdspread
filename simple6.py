@@ -192,33 +192,10 @@ class sheet(matrix):
        self.colwidth = 7   
        # Store any entered text. 
        self.stuff = ""             
-       # Move to the origin. 
-       #self.scr.move(0, 0)                
-       self.scr.move(5, 10)                
+       # Move to the origin.        
+       self.scr.move(1, 7)                
        # Create a cell
-       self.cell = cell(self.scr)         
-       # Write something 
-       self.cell.write("Here is some text")   
-       self.scr.refresh() 
-       	                         
-       self.scr.move(7, 15)                
-       self.cell.write("Foo", curses.A_STANDOUT, "center") 
-       self.scr.refresh() 
-          
-       self.scr.move(9, 15)  
-       #self.mytext = curses.has_colors()  
-       #self.mytext = curses.can_change_color()                     
-       #self.cell.write(self.mytext)       
-       self.cell.write("Testing", curses.A_NORMAL, "center")   
-       self.scr.refresh() 
-       
-       self.scr.move(11, 15)                       
-       self.cell.write("5", curses.A_UNDERLINE, "center")                                     
-       #self.cell.move("*")
-       self.scr.refresh() 	                         
-                     
-       # Write some data to a range
-       self.scr.move(0, 0)         
+       self.cell = cell(self.scr)                                            
        # Write the row and column headings.                             
        self.colheads = list(chr(x) for x in range(65,75)) 
        self.plist = list( (y,x) for y in range(1, 2) for 
@@ -234,7 +211,12 @@ class sheet(matrix):
        self.cell.write_range(self.rowheads, self.plist, 
             curses.A_STANDOUT, "center")  
        self.scr.refresh() 	
-                                                                       
+       # The position (2, 7) puts the cell perfectly in position 
+       # at cell "A1".                          
+       self.scr.move(2, 7)
+       self.cell = cell(self.scr)                                      
+       self.scr.refresh()  
+                                                                             
        # Create a matrix for the column and row headings. 
        a = matrix(21,11)               
        self.colheads = list(chr(x) for x in range(65,76)) 

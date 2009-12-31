@@ -76,9 +76,9 @@ class cell(object):
        elif self.dir == "*": 
           self.newx = self.x 
           self.newy = self.y                     
-       # Remove the highlight from the current coordinates. 
-       (y, x) = self.scr.getyx() 
-       self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
+       # Remove the highlight from the current cell. 
+       self.scr.move(self.y, self.x)         
+       self.scr.chgat(self.y, self.x, self.width, curses.A_NORMAL)                      
        self.scr.refresh() 
        # Now move the highlight to the new coordinates. 
        #self.scr.move(5, 10)
@@ -198,8 +198,9 @@ class sheet(matrix):
           
           c=self.scr.getch()		# Get a keystroke                                                                                  
           if c in (curses.KEY_ENTER, 10):                
-             curses.noecho()                
-             self.cell.move("*")
+             curses.noecho()    
+             self.cell.move("D")            
+             #self.cell.move("*")
              self.scr.refresh()                
           elif c==curses.KEY_UP:  
              curses.noecho()                

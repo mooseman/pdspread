@@ -24,17 +24,17 @@ import sys, re, types, itertools, math, curses, curses.ascii, traceback, string,
 # 2 for tbound. Coords is a tuple of the coordinates of the cell. 
 # This is in the form (row, col).    
 class cell(object): 
-    def __init__(self, scr, lbound, tbound, coords): 
-       self.scr = scr
-       self.lbound = lbound 
-       self.tbound = tbound    
-       self.coords = coords
-       self.row = self.coords[0]
-       self.col = self.coords[1]
+    def __init__(self, scr, coords): 
+       self.scr = scr       
+       self.y = coords[0]
+       self.x = coords[1]
        # Methods to store the cells bordering this cell. 
        self.left = self.right = self.above = self.below = None 
        # Store data 
        self.data = {} 
+       # Attributes for moving the cell 
+       self.newy = self.y 
+       self.newx = self.x 
        # A cell's name (e.g. E5)  
        self.addr = None 
        # A cell's position (e.g. 7, 28) 
@@ -42,22 +42,42 @@ class cell(object):
        # Set up the appearance of the cell
        self.width = 7
        # Now, set up the cell "highlight" and refresh the screen. 
-       self.scr.chgat(self.row, self.col, self.width, curses.A_STANDOUT)    
+       self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
+       #self.scr.addstr(self.y, self.x, str(self.y) + " " + str(self.x)  ) 
+       
        self.scr.refresh()                   
        
     # Set a given attribute    
     def set(self, attr, val): 
        setattr(self, attr, val)  
-                     
-    def move(self, name): 
-       (y, x) = self.scr.getyx() 
+
+    # Move the cell in a given direction                      
+    def move(self, dir): 
+       self.dir = dir.upper() 
+       #(y, x) = self.scr.getyx() 
+       if self.dir == "L": 
+          self.newx = self.x - self.width 
+       elif self.dir == "R":    
+          self.newx = self.x + self.width 
+       elif self.dir == "U":    
+          self.newy = self.y - 1 
+       elif self.dir == "D":    
+          self.newy = self.y + 1
+       
        # Remove the highlight from the current coordinates. 
+       (y, x) = self.scr.getyx() 
        self.scr.chgat(y, x, self.width, curses.A_NORMAL)                      
        self.scr.refresh() 
        # Now move the highlight to the new coordinates. 
-       self.scr.move(name[0], name[1]) 
+       #self.scr.move(5, 10)
+       #self.scr.addstr(5, 10, str(self.newy) + " " + str(self.newx)  )  
+       
+       self.scr.move(self.newy, self.newx) 
+       #a = cell(self.scr, (self.newy, self.newx))
        (y, x) = self.scr.getyx() 
-       self.scr.chgat(y, x, self.width, curses.A_STANDOUT)    
+       self.y = y 
+       self.x = x
+       self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
        self.scr.refresh()  
                                    
     def display(self, attr): 
@@ -115,12 +135,9 @@ class sheet(matrix):
        # Move to the origin. 
        self.scr.move(0, 0)                
        # Create a cell
-       self.cell = cell(self.scr, 1, 1, (1,7))         
-       self.scr.refresh()	                         
-       self.cell.move((12, 40))       
-       self.scr.refresh()	                         
-       
-       
+       self.cell = cell(self.scr, (1,7))         
+       self.scr.refresh() 	                         
+                     
        # Create a matrix for the column and row headings. 
        a = matrix(21,11) 
        self.colheads = list(chr(x) for x in range(65,76)) 
@@ -163,7 +180,23 @@ class sheet(matrix):
           curses.echo()                           
           c=self.scr.getch()		# Get a keystroke                                                                                  
           if c in (curses.KEY_ENTER, 10):                
-             pass                                     
+             pass
+          elif c==curses.KEY_UP:  
+             curses.noecho()                
+             self.cell.move("U")
+             self.scr.refresh()
+          elif c==curses.KEY_DOWN:
+             curses.noecho()   
+             self.cell.move("D")                  
+             self.scr.refresh()   
+          elif c==curses.KEY_LEFT: 
+             curses.noecho()  
+             self.cell.move("L")
+             self.scr.refresh()
+          elif c==curses.KEY_RIGHT: 
+             curses.noecho() 
+             self.cell.move("R")
+             self.scr.refresh()                                                                 
           elif c==curses.KEY_F5: 
              (y, x) = self.scr.getyx()              
              self.do_matrix()

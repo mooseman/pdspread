@@ -121,7 +121,7 @@ class cell(object):
              self.datalist.append(x) 
        elif align == "center": 
           for x in datalist: 
-             self.datalist.append(x.center(self.width)) 
+             self.datalist.append(str(x).center(self.width)) 
        else: 
           pass                   
        # Get the position of the cursor. 
@@ -218,13 +218,23 @@ class sheet(matrix):
        self.scr.refresh() 	                         
                      
        # Write some data to a range
-       self.scr.move(13, 15)                                     
-       self.colheads = list(chr(x) for x in range(65,76)) 
-       self.plist = list( (y,x) for y in range(13, 14) for 
-          x in range(15, 78, 7) )
-       self.cell.write_range(self.colheads, self.plist)  
-                     
-                            
+       self.scr.move(0, 0)         
+       # Write the row and column headings.                             
+       self.colheads = list(chr(x) for x in range(65,75)) 
+       self.plist = list( (y,x) for y in range(1, 2) for 
+          x in range(7, 75, 7) )
+       self.cell.write_range(self.colheads, self.plist, 
+            curses.A_STANDOUT, "center")  
+       self.scr.refresh() 	
+       # Row headings 
+       self.scr.move(2, 0)         
+       self.rowheads = list(range(1,21))  
+       self.plist = list( (y,x) for y in range(2, 22) for 
+          x in range(0, 1) )
+       self.cell.write_range(self.rowheads, self.plist, 
+            curses.A_STANDOUT, "center")  
+       self.scr.refresh() 	
+                                                                       
        # Create a matrix for the column and row headings. 
        a = matrix(21,11)               
        self.colheads = list(chr(x) for x in range(65,76)) 

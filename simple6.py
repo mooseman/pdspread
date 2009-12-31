@@ -111,13 +111,31 @@ class cell(object):
        # Refresh the screen 
        self.scr.refresh()                                      
                   
-    # Create a new window               
-    def create_win(self): 
+    # Write a list of data into a range of cell positions. 
+    def write_range(self, datalist, poslist, attr=None, align=None): 
+       self.datalist = [] 
+       self.poslist = poslist    
+       # Apply alignment (if any) 
+       if align == None: 
+          for x in datalist: 
+             self.datalist.append(x) 
+       elif align == "center": 
+          for x in datalist: 
+             self.datalist.append(x.center(self.width)) 
+       else: 
+          pass                   
+       # Get the position of the cursor. 
        (y, x) = self.scr.getyx() 
-       self.newscr = curses.newwin(3, 8, y, x) 
-       self.newscr.box() 
-       self.newscr.refresh() 
-                                                                                               
+       # Write the text, applying the attribute (if used) 
+       if attr == None: 
+          for x,y in zip(self.datalist, self.poslist): 
+             self.scr.addstr(y[0], y[1], str(x) ) 
+       else:   
+          for x,y in zip(self.datalist, self.poslist):         
+             self.scr.addstr(y[0], y[1], str(x), attr ) 
+       # Refresh the screen 
+       self.scr.refresh()                                                     
+                                                                                                                 
     def display(self, attr): 
        (y, x) = self.scr.getyx()           
        strattr = str(getattr(self, attr)) 
@@ -198,12 +216,15 @@ class sheet(matrix):
        self.cell.write("5", curses.A_UNDERLINE, "center")                                     
        #self.cell.move("*")
        self.scr.refresh() 	                         
-       
-       self.scr.move(14, 15)  
-       # Create a new window (just for fun.... ) 
-       self.cell.create_win() 
-       self.scr.refresh() 	                         
                      
+       # Write some data to a range
+       self.scr.move(13, 15)                                     
+       self.colheads = list(chr(x) for x in range(65,76)) 
+       self.plist = list( (y,x) for y in range(13, 14) for 
+          x in range(15, 78, 7) )
+       self.cell.write_range(self.colheads, self.plist)  
+                     
+                            
        # Create a matrix for the column and row headings. 
        a = matrix(21,11)               
        self.colheads = list(chr(x) for x in range(65,76)) 

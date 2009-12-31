@@ -106,11 +106,18 @@ class cell(object):
        # Write the text, applying the attribute (if used) 
        if attr == None: 
           self.scr.addstr(y, x, str(self.text) ) 
-       else: 
-          self.scr.addstr(y, x, str(self.text), attr ) 
+       else:           
+          self.scr.addstr(y, x, str(self.text), attr)  
        # Refresh the screen 
        self.scr.refresh()                                      
-                                                            
+                  
+    # Create a new window               
+    def create_win(self): 
+       (y, x) = self.scr.getyx() 
+       self.newscr = curses.newwin(3, 8, y, x) 
+       self.newscr.box() 
+       self.newscr.refresh() 
+                                                                                               
     def display(self, attr): 
        (y, x) = self.scr.getyx()           
        strattr = str(getattr(self, attr)) 
@@ -174,11 +181,27 @@ class sheet(matrix):
        self.cell = cell(self.scr)         
        # Write something 
        self.cell.write("Here is some text")   
-       
+       self.scr.refresh() 
+       	                         
        self.scr.move(7, 15)                
-       self.cell.write("Foo", curses.A_STANDOUT, "center")         
-              
+       self.cell.write("Foo", curses.A_STANDOUT, "center") 
+       self.scr.refresh() 
+          
+       self.scr.move(9, 15)  
+       #self.mytext = curses.has_colors()  
+       #self.mytext = curses.can_change_color()                     
+       #self.cell.write(self.mytext)       
+       self.cell.write("Testing", curses.A_NORMAL, "center")   
+       self.scr.refresh() 
+       
+       self.scr.move(11, 15)                       
+       self.cell.write("5", curses.A_UNDERLINE, "center")                                     
        #self.cell.move("*")
+       self.scr.refresh() 	                         
+       
+       self.scr.move(14, 15)  
+       # Create a new window (just for fun.... ) 
+       self.cell.create_win() 
        self.scr.refresh() 	                         
                      
        # Create a matrix for the column and row headings. 
@@ -277,8 +300,9 @@ def main(stdscr):
 #  Run the code from the command-line 
 if __name__ == '__main__':  
   try: 
-     stdscr = curses.initscr()   
+     stdscr = curses.initscr()        
      #curses.start_color()      
+     #curses.use_default_colors()
      curses.noecho() ; curses.cbreak()
      stdscr.keypad(1)
      main(stdscr)      # Enter the main loop

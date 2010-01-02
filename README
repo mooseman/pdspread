@@ -8,6 +8,11 @@
  Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
  that application is used here. Very many thanks to Andrew for 
  doing that application!   
+ Also, very many thanks to those in pythonforum.org who have helped
+ me with my questions there. 
+ Many thanks also to "bvdet" from bytes.com. The matrix code in this 
+ app is based on the code that he posted here -  
+ http://bytes.com/topic/python/answers/594203-please-how-create-matrix-python
 
  To exit the spreadsheet, press Ctrl-G. 
  

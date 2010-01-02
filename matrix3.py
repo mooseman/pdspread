@@ -37,16 +37,9 @@ class matrix(object):
        cells = list(itertools.product(range(rows[0], rows[1]),
           range(cols[0], cols[1]) ) )
        mydata = list(data)
-       mylist = zip(cells, mydata)
-       print mylist
+       mylist = zip(cells, mydata)       
        for x in mylist:
            self.setitem(x[0][0], x[0][1], x[1])
-           
-       #print self
-       
-       #print zip(cells, mydata)
-       
-       #print cells, mydata
                                    
    def getitem(self, row, col):
        return self.matrix[row-1][col-1]
@@ -58,7 +51,13 @@ class matrix(object):
              reslist.append(self.matrix[x-1][y-1])
              #return list(self.matrix[x-1][y-1])
              return reslist
-                                        
+                 
+   def getrange2(self, rows, cols): 
+       cells = list(itertools.product(range(rows[0], rows[1]),
+          range(cols[0], cols[1]) ) )              
+       for x in cells:
+           return self.matrix[x[0]:x[1] ] 
+                                           
    def __repr__(self):
        outStr = ""
        for i in range(self.rows):
@@ -88,6 +87,6 @@ c.setrange((3,6), (3,6), stuff)
                                   
 #print l
 #print rownums
-print c
+print c 
  
  

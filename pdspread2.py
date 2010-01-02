@@ -20,6 +20,7 @@ class cell(object):
        self.x = x   
        self.newy = y 
        self.newx = x   
+       self.text = ""
        self.mytext = ""           
        # Specify the leftmost column and topmost row.
        self.lbound = 7
@@ -68,12 +69,39 @@ class cell(object):
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
        self.scr.refresh()  
                          
-    def write(self, text): 
+    # Write something in a cell and apply an attribute (curses.A_NORMAL, 
+    # curses.A_STANDOUT etc) to it. You can also apply alignment 
+    # (usually centering) here.     
+    # We will do a "range" version of this function to write a list of 
+    # text into a range of cells - just what is needed for headings and 
+    # so on.                          
+    def write(self, text, attr=None, align=None):    
+       # Apply alignment (if any) 
+       # We set default alignment here - right-align numbers, and 
+       # left-align text. 
+       if align == None and str(text).isdigit() == "True": 
+          self.text = text.rjust(self.width) 
+       elif align == None and str(text).isdigit() == "False":    
+          self.text = text.ljust(self.width) 
+       # User-specified alignment next.     
+       if align == "left": 
+          self.text = text.ljust(self.width)  
+       elif align == "center": 
+          self.text = text.center(self.width)    
+       elif align == "right": 
+          self.text = text.rjust(self.width)        
+       # Get the position of the cursor. 
        (y, x) = self.scr.getyx() 
-       self.text = text        
-       self.scr.addstr(y, x, self.text )         
-       self.scr.refresh()  
-    
+       # Write the text, applying the attribute (if used)        
+       if attr == None: 
+          self.scr.addstr(y, x, str(self.text) ) 
+       else:           
+          self.scr.addstr(y, x, str(self.text), attr)  
+       # Reset self.text to missing. 
+       self.text = ""          
+       # Refresh the screen 
+       self.scr.refresh()                                      
+        
     # Write a list of data into a range of cell positions. 
     def write_range(self, datalist, poslist, attr=None, align=None): 
        self.datalist = [] 
@@ -99,17 +127,7 @@ class cell(object):
        # Refresh the screen 
        self.scr.refresh()                                                                  
  
-    def format(self): 
-       (y, x) = self.scr.getyx() 
-       if self.text.isdigit() == "True": 
-          self.mytext = self.text.rjust(self.width) 
-       elif self.text.isdigit() == "False":    
-          self.mytext = self.text.ljust(self.width)     
-       self.scr.addstr(y, x, str(self.mytext) ) 
-       self.text = "" 
-       self.scr.refresh()      
- 
-                                                 
+                                                      
 #  A spreadsheet class. 
 class sheet(cell):
     def __init__(self, scr): 
@@ -120,8 +138,7 @@ class sheet(cell):
        self.scr.idlok(1) 
        # Just added leaveok. 
        self.scr.leaveok(0)                      
-       self.scr.setscrreg(0, 22)    
-       self.stuff = ""
+       self.scr.setscrreg(0, 22)           
        
        # Set the default column width. 
        self.colwidth = 7          
@@ -151,23 +168,47 @@ class sheet(cell):
        self.scr.refresh()  
        
        self.cell.move("R")
-       self.cell.write("123") 
-       self.cell.format() 
+       self.cell.write("123", align="right")         
        self.scr.refresh()  
        
        self.cell.move("D")
-       self.cell.write("456") 
-       self.cell.format() 
+       self.cell.write("456", align="right")        
        self.scr.refresh()  
               
        self.cell.move("D")
-       self.cell.write("789")  
-       self.cell.format() 
+       self.cell.write("789", align="right")
        self.scr.refresh()  
-              
+       
+       self.cell.move("D")
+       self.cell.write("foo", align="left")
+       self.scr.refresh()  
+       
+       self.cell.move("D")
+       self.cell.write("bar", align="left")
+       self.scr.refresh()  
+                                   
        self.cell.move("D")
        self.scr.refresh()  
-                                                                                           
+
+    # See if we can capture user input and then manipulate it. 
+    def test(self):       
+       self.cell.write("foo", align="right")
+       self.scr.refresh()   
+                        
+    # After the Enter or an arrow key is pressed, run this code 
+    # to test and align the text. Run this FIRST, before the movement 
+    # code.                             
+    def testtext(self):  
+       (y, x) = self.scr.getyx()                                       
+       mytext = self.cell.text 
+       if str(mytext).isdigit() == "True": 
+          mytext = mytext.rjust(self.width) 
+       elif str(mytext).isdigit() == "False":    
+          mytext = mytext.ljust(self.width)       
+       self.scr.move(self.cell.y, self.cell.x)                   
+       self.scr.addstr(y, x, str(mytext) )  
+       self.scr.refresh()                                                                                               
+          
           
     # We handle keystrokes here.                                                                                                                                                                                                                                                                                                                      
     def action(self):  
@@ -178,26 +219,31 @@ class sheet(cell):
           # we need to use getstr here (instead of getch) ?          
           c=self.scr.getch()		
           if c in (curses.KEY_ENTER, 10):                
-             curses.noecho()    
+             curses.noecho()  
+             self.testtext()  
              self.cell.move("D")   
              # To move the cursor to the start of the cell, comment out 
              # the above line, and uncomment the line below.         
              #self.cell.move("*")
              self.scr.refresh()                
           elif c==curses.KEY_UP:  
-             curses.noecho()                
+             curses.noecho()  
+             self.testtext()                
              self.cell.move("U")
              self.scr.refresh()
           elif c==curses.KEY_DOWN:
-             curses.noecho()   
+             curses.noecho()  
+             self.testtext()   
              self.cell.move("D")                  
              self.scr.refresh()   
           elif c==curses.KEY_LEFT: 
              curses.noecho()  
+             self.testtext()  
              self.cell.move("L")
              self.scr.refresh()
           elif c==curses.KEY_RIGHT: 
              curses.noecho() 
+             self.testtext()  
              self.cell.move("R")
              self.scr.refresh()                                                                 
           elif c==curses.KEY_F2: 
@@ -209,10 +255,7 @@ class sheet(cell):
           # This is where user-entered text is controlled from. 
           ######################################################          
           elif 0<c<256: 
-             c=chr(c)                            
-             self.cell.write(c) 
-             self.cell.format() 
-             self.scr.refresh()                                                                 
+             c=chr(c)                                                      
           else: 
              pass    
                                        

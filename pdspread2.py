@@ -19,7 +19,8 @@ class cell(object):
        self.y = y 
        self.x = x   
        self.newy = y 
-       self.newx = x              
+       self.newx = x   
+       self.mytext = ""           
        # Specify the leftmost column and topmost row.
        self.lbound = 7
        self.tbound = 2                                  
@@ -67,36 +68,11 @@ class cell(object):
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
        self.scr.refresh()  
                          
-    # Write something in a cell and apply an attribute (curses.A_NORMAL, 
-    # curses.A_STANDOUT etc) to it. You can also apply alignment 
-    # (usually centering) here.     
-    # We will do a "range" version of this function to write a list of 
-    # text into a range of cells - just what is needed for headings and 
-    # so on.                          
-    def write(self, text, attr=None, align=None):    
-       # Apply alignment (if any) 
-       # We try to set default alignment here - right-align numbers, 
-       # and left-align text. 
-       if align == None and str(text).isdigit() == "True": 
-          self.text = text.rjust(self.width) 
-       elif align == None and str(text).isdigit() == "False":    
-          self.text = text.ljust(self.width) 
-       # User-specified alignment next.     
-       if align == "left": 
-          self.text = text.ljust(self.width)  
-       elif align == "center": 
-          self.text = text.center(self.width)    
-       elif align == "right": 
-          self.text = text.rjust(self.width)        
-       # Get the position of the cursor. 
+    def write(self, text): 
        (y, x) = self.scr.getyx() 
-       # Write the text, applying the attribute (if used)        
-       if attr == None: 
-          self.scr.addstr(y, x, str(self.text) ) 
-       else:           
-          self.scr.addstr(y, x, str(self.text), attr)         
-       # Refresh the screen 
-       self.scr.refresh()                                      
+       self.text = text        
+       self.scr.addstr(y, x, self.text )         
+       self.scr.refresh()  
     
     # Write a list of data into a range of cell positions. 
     def write_range(self, datalist, poslist, attr=None, align=None): 
@@ -122,6 +98,16 @@ class cell(object):
              self.scr.addstr(y[0], y[1], str(x), attr ) 
        # Refresh the screen 
        self.scr.refresh()                                                                  
+ 
+    def format(self): 
+       (y, x) = self.scr.getyx() 
+       if self.text.isdigit() == "True": 
+          self.mytext = self.text.rjust(self.width) 
+       elif self.text.isdigit() == "False":    
+          self.mytext = self.text.ljust(self.width)     
+       self.scr.addstr(y, x, str(self.mytext) ) 
+       self.text = "" 
+       self.scr.refresh()      
  
                                                  
 #  A spreadsheet class. 
@@ -165,11 +151,20 @@ class sheet(cell):
        self.scr.refresh()  
        
        self.cell.move("R")
-       self.cell.write("123", align="right")
+       self.cell.write("123") 
+       self.cell.format() 
+       self.scr.refresh()  
+       
        self.cell.move("D")
-       self.cell.write("456", align="right")
+       self.cell.write("456") 
+       self.cell.format() 
+       self.scr.refresh()  
+              
        self.cell.move("D")
-       self.cell.write("789", align="right")
+       self.cell.write("789")  
+       self.cell.format() 
+       self.scr.refresh()  
+              
        self.cell.move("D")
        self.scr.refresh()  
                                                                                            
@@ -215,6 +210,9 @@ class sheet(cell):
           ######################################################          
           elif 0<c<256: 
              c=chr(c)                            
+             self.cell.write(c) 
+             self.cell.format() 
+             self.scr.refresh()                                                                 
           else: 
              pass    
                                        

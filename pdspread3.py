@@ -122,7 +122,7 @@ class sheet(cell):
        # Set the default column width. 
        self.colwidth = 7          
        # Move to the origin.        
-       self.scr.move(1, 7)                
+       self.scr.move(1, 7)                       
        # Create a cell
        self.cell = cell(self.scr)                                            
        # Write the row and column headings.                             
@@ -147,6 +147,7 @@ class sheet(cell):
        self.scr.refresh()  
        
        self.cell.move("R")
+       (y, x) = self.scr.getyx()                            
        self.cell.write("123") 
        self.scr.refresh()  
        
@@ -226,7 +227,8 @@ class sheet(cell):
           # This is where user-entered text is controlled from. 
           ######################################################          
           elif 0<c<256: 
-             c=chr(c)                                                      
+             c=chr(c)  
+             self.cell.write(c)                                                     
           else: 
              pass    
                                        

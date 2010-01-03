@@ -171,14 +171,14 @@ class sheet(cell):
     # to test and align the text. Run this FIRST, before the movement 
     # code.                             
     def testtext(self):  
-       (y, x) = self.scr.getyx()                                       
+       #(y, x) = self.scr.getyx()                                       
        mytext = self.cell.text 
        if str(mytext).isdigit() == "True": 
           mytext = mytext.rjust(self.width) 
        elif str(mytext).isdigit() == "False":    
           mytext = mytext.ljust(self.width)       
        self.scr.move(self.cell.y, self.cell.x)                   
-       self.scr.addstr(y, x, str(mytext) )  
+       self.scr.addstr(self.cell.y, self.cell.x, str(mytext) )  
        self.scr.refresh()                                                                                               
           
           

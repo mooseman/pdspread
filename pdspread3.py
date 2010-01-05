@@ -39,9 +39,9 @@ class cell(object):
     # Notice here that we have a "direction" of "*". This is used when 
     # the Enter key is pressed. It moves the cursor to the beginning 
     # of the cell (highlight).                       
-    def move(self, dir): 
-       self.dir = dir.upper() 
+    def move(self, dir):               
        #(y, x) = self.scr.getyx() 
+       self.dir=dir.upper()
        if self.dir == "L" and self.x-self.width >= self.lbound:           
           self.newx = self.x - self.width 
        else: 
@@ -66,7 +66,8 @@ class cell(object):
        (y, x) = self.scr.getyx() 
        self.y = y 
        self.x = x
-       self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
+       self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)  
+       #self.text = ""  
        self.scr.refresh()  
                          
     # Write something in a cell and apply an attribute (curses.A_NORMAL, 
@@ -76,10 +77,20 @@ class cell(object):
     # text into a range of cells - just what is needed for headings and 
     # so on.                          
     # This just saves text to the cell's text string. 
-    def write(self, text):  
-       self.text += text        
+    def write(self, text):         
+       for x in text:   
+          self.text += str(x) 
        
-    
+    def align(self): 
+       if self.text.isdigit() == "True": 
+          self.mytext = self.text.rjust(self.width) 
+       elif self.text.isdigit() == "False":    
+          self.mytext = self.text.ljust(self.width)       
+       self.scr.move(self.y, self.x)                   
+       self.scr.addstr(self.y, self.x, self.mytext )  
+       self.text = ""       
+       self.scr.refresh() 
+                  
     # Write a list of data into a range of cell positions. 
     def write_range(self, datalist, poslist, attr=None, align=None): 
        self.datalist = [] 
@@ -117,7 +128,8 @@ class sheet(cell):
        self.scr.idlok(1) 
        # Just added leaveok. 
        self.scr.leaveok(0)                      
-       self.scr.setscrreg(0, 22)           
+       self.scr.setscrreg(0, 22) 
+       self.stuff = ""          
        
        # Set the default column width. 
        self.colwidth = 7          
@@ -149,8 +161,21 @@ class sheet(cell):
        self.cell.move("R")
        (y, x) = self.scr.getyx()                            
        self.cell.write("123") 
+       self.cell.align() 
        self.scr.refresh()  
        
+       self.cell.move("D")
+       (y, x) = self.scr.getyx()                            
+       self.cell.write("abc") 
+       self.cell.align() 
+       self.scr.refresh()  
+       
+       self.cell.move("D")
+       (y, x) = self.scr.getyx()                            
+       self.cell.write("456") 
+       self.cell.align() 
+       self.scr.refresh()  
+                
        self.cell.move("D")
        self.scr.addstr(y, x, str(self.cell.text) )                
        self.scr.refresh()  
@@ -192,7 +217,7 @@ class sheet(cell):
           c=self.scr.getch()		
           if c in (curses.KEY_ENTER, 10):                
              curses.noecho()  
-             self.testtext()  
+             #self.testtext()  
              self.cell.move("D")   
              # To move the cursor to the start of the cell, comment out 
              # the above line, and uncomment the line below.         
@@ -200,22 +225,22 @@ class sheet(cell):
              self.scr.refresh()                
           elif c==curses.KEY_UP:  
              curses.noecho()  
-             self.testtext()                
+             #self.testtext()                
              self.cell.move("U")
              self.scr.refresh()
           elif c==curses.KEY_DOWN:
              curses.noecho()  
-             self.testtext()   
+             #self.testtext()   
              self.cell.move("D")                  
              self.scr.refresh()   
           elif c==curses.KEY_LEFT: 
              curses.noecho()  
-             self.testtext()  
+             #self.testtext()  
              self.cell.move("L")
              self.scr.refresh()
           elif c==curses.KEY_RIGHT: 
              curses.noecho() 
-             self.testtext()  
+             #self.testtext()  
              self.cell.move("R")
              self.scr.refresh()                                                                 
           elif c==curses.KEY_F2: 
@@ -227,8 +252,8 @@ class sheet(cell):
           # This is where user-entered text is controlled from. 
           ######################################################          
           elif 0<c<256: 
-             c=chr(c)  
-             self.cell.write(c)                                                     
+             c=chr(c) 
+             self.stuff += c              
           else: 
              pass    
                                        

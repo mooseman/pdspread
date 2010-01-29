@@ -15,12 +15,23 @@ class cell(object):
        self.address = None 
        self.data = None 
        self.width = 7 
-       self.align = None
-
+       self.align = None 
+    
+    # Set an attribute (e.g. the cell address).    
+    def set(self, attr, val): 
+      setattr(self, attr, val) 
+            
+    # Get an attribute (e.g. the cell address or data). 
+    def get(self, attr): 
+      return getattr(self, attr)       
+    
+    # Write data to the cell. This is a separate method because we 
+    # may want to use a particular alignment for the data. 
     def write(self, stuff, align="right"):                
        self.data = str(stuff) 
        self.align = align 
                         
+    # Align data.                         
     def align(self): 
        if self.data.isdigit() == "True": 
           self.data = self.data.rjust(self.width) 
@@ -88,7 +99,13 @@ class highlight(cell):
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)  
        #self.text = ""  
        self.scr.refresh()  
-                         
+    
+    # Enter text into a cell. This will then be handled by the 
+    # cell methods. 
+    def store(self, stuff): 
+       pass 
+       
+                                 
                                                        
 #  A spreadsheet class. 
 class sheet(cell):

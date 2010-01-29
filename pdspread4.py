@@ -8,11 +8,31 @@
  
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    
-# A cell class. This has left and top boundaries. These are the leftmost 
+# A cell class. This contains the data in a cell, and also formats it
+# (numeric format, alignment and so on).     
+class cell(object): 
+    def __init__(self): 
+       self.address = None 
+       self.data = None 
+       self.width = 7 
+       self.align = None
+
+    def write(self, stuff, align="right"):                
+       self.data = str(stuff) 
+       self.align = align 
+                        
+    def align(self): 
+       if self.data.isdigit() == "True": 
+          self.data = self.data.rjust(self.width) 
+       elif self.data.isdigit() == "False":    
+          self.data = self.data.ljust(self.width)              
+                  
+
+# A highlight class. This has left and top boundaries. These are the leftmost 
 # column and the topmost row. We will make the defaults 2 for lbound and 
 # 2 for tbound. Coords is a tuple of the coordinates of the cell. 
 # This is in the form (row, col).    
-class cell(object): 
+class highlight(cell): 
     def __init__(self, scr): 
        self.scr = scr     
        (y, x) = self.scr.getyx() 
@@ -20,8 +40,7 @@ class cell(object):
        self.x = x   
        self.newy = y 
        self.newx = x   
-       self.text = ""
-       self.mytext = ""           
+       
        # Specify the leftmost column and topmost row.
        self.lbound = 7
        self.tbound = 2                                  
@@ -70,53 +89,7 @@ class cell(object):
        #self.text = ""  
        self.scr.refresh()  
                          
-    # Write something in a cell and apply an attribute (curses.A_NORMAL, 
-    # curses.A_STANDOUT etc) to it. You can also apply alignment 
-    # (usually centering) here.     
-    # We will do a "range" version of this function to write a list of 
-    # text into a range of cells - just what is needed for headings and 
-    # so on.                          
-    # This just saves text to the cell's text string. 
-    def write(self, text):         
-       for x in text:   
-          self.text += str(x)               
-                        
-    def align(self): 
-       if self.text.isdigit() == "True": 
-          self.mytext = self.text.rjust(self.width) 
-       elif self.text.isdigit() == "False":    
-          self.mytext = self.text.ljust(self.width)       
-       self.scr.move(self.y, self.x)                   
-       self.scr.addstr(self.y, self.x, self.mytext )  
-       self.text = ""       
-       self.scr.refresh() 
-                  
-    # Write a list of data into a range of cell positions. 
-    def write_range(self, datalist, poslist, attr=None, align=None): 
-       self.datalist = [] 
-       self.poslist = poslist    
-       # Apply alignment (if any) 
-       if align == None: 
-          for x in datalist: 
-             self.datalist.append(x) 
-       elif align == "center": 
-          for x in datalist: 
-             self.datalist.append(str(x).center(self.width)) 
-       else: 
-          pass                   
-       # Get the position of the cursor. 
-       (y, x) = self.scr.getyx() 
-       # Write the text, applying the attribute (if used) 
-       if attr == None: 
-          for x,y in zip(self.datalist, self.poslist): 
-             self.scr.addstr(y[0], y[1], str(x) ) 
-       else:   
-          for x,y in zip(self.datalist, self.poslist):         
-             self.scr.addstr(y[0], y[1], str(x), attr ) 
-       # Refresh the screen 
-       self.scr.refresh()                                                                  
- 
-                                                      
+                                                       
 #  A spreadsheet class. 
 class sheet(cell):
     def __init__(self, scr): 
@@ -136,14 +109,17 @@ class sheet(cell):
        # Move to the origin.        
        self.scr.move(1, 7)                       
        # Create a cell
-       self.cell = cell(self.scr)                                            
+       self.highlight = highlight(self.scr)                                            
        # Write the row and column headings.                             
        self.colheads = list(chr(x) for x in range(65,75)) 
        self.plist = list( (y,x) for y in range(1, 2) for 
           x in range(7, 75, 7) )
+          
+          
        self.cell.write_range(self.colheads, self.plist, 
             curses.A_STANDOUT, "center")  
        self.scr.refresh() 	
+       
        # Row headings 
        self.scr.move(2, 0)         
        self.rowheads = list(range(1,21))  
@@ -152,11 +128,14 @@ class sheet(cell):
        self.cell.write_range(self.rowheads, self.plist, 
             curses.A_STANDOUT, "center")  
        self.scr.refresh() 	
+       
+       
        # The position (2, 7) puts the cell perfectly in position 
        # at cell "A1".                          
        self.scr.move(2, 7)
        self.cell = cell(self.scr)                                      
        self.scr.refresh()  
+       
        
        self.cell.move("R")
        (y, x) = self.scr.getyx()                            
@@ -164,49 +143,41 @@ class sheet(cell):
        #self.align() 
        self.scr.refresh()  
        
+       
        self.cell.move("D")
        (y, x) = self.scr.getyx()                            
        self.cell.write("abc") 
        #self.align() 
        self.scr.refresh()  
        
+       
        self.cell.move("D")
        (y, x) = self.scr.getyx()                            
        self.cell.write("456") 
        #self.align() 
        self.scr.refresh()  
+       
                 
        self.cell.move("D")
        self.scr.addstr(y, x, str(self.cell.text) )                
        self.scr.refresh()  
+       
               
        self.cell.move("D")
        self.scr.addstr(y, x, str(self.cell.text) )                       
        self.scr.refresh()  
+       
                                           
        self.cell.move("D")
        self.scr.refresh()  
+
 
     # See if we can capture user input and then manipulate it. 
     def test(self):       
        self.cell.write("foo") 
        self.scr.refresh()   
                         
-    # After the Enter or an arrow key is pressed, run this code 
-    # to test and align the text. Run this FIRST, before the movement 
-    # code.                             
-    def align(self):  
-       #(y, x) = self.scr.getyx()                                       
-       mytext = self.cell.text 
-       if str(mytext).isdigit() == "True": 
-          mytext = mytext.rjust(self.width) 
-       elif str(mytext).isdigit() == "False":    
-          mytext = mytext.ljust(self.width)       
-       self.scr.move(self.cell.y, self.cell.x)                   
-       self.scr.addstr(self.cell.y, self.cell.x, str(mytext) )  
-       self.scr.refresh()                                                                                               
-          
-          
+                    
     # We handle keystrokes here.                                                                                                                                                                                                                                                                                                                      
     def action(self):  
        while (1): 

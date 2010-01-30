@@ -55,12 +55,29 @@ class range(cell):
        return self.datalist  
        
                        
-# A highlight class. This has left and top boundaries. These are the leftmost 
-# column and the topmost row. We will make the defaults 2 for lbound and 
-# 2 for tbound. Coords is a tuple of the coordinates of the cell. 
-# This is in the form (row, col).    
-class highlight(): 
-    def __init__(self):                           
+                                                                                                                  
+#  A spreadsheet class. 
+class sheet():
+    def __init__(self, scr): 
+       self.scr = scr   
+       (y, x) = self.scr.getyx()                            
+       curses.noecho() 
+       self.scr.keypad(1)            
+       self.scr.scrollok(1)
+       self.scr.idlok(1) 
+       # Just added leaveok. 
+       self.scr.leaveok(0)                      
+       self.scr.setscrreg(0, 22) 
+       self.stuff = ""          
+       
+       # Set the default column width. 
+       self.colwidth = 7          
+       # Move to the origin.        
+       self.scr.move(1, 7)    
+       self.scr.refresh() 	
+        
+    # A highlight method - this creates the "cell cursor".                       
+    def highlight(self):      
        self.y = 0
        self.x = 0   
        self.newy = self.y 
@@ -73,10 +90,9 @@ class highlight():
        # Set up the appearance of the cell
        self.width = 7
        # Now, set up the cell "highlight" and refresh the screen. 
-       #self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
-       #self.scr.addstr(self.y, self.x, str(self.y) + " " + str(self.x)  ) 
-       #self.scr.move(self.y, self.x)
-       #self.scr.refresh()                   
+       self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)           
+       self.scr.move(self.y, self.x)
+       self.scr.refresh()                   
        
     # Move the cell in a given direction  
     # Note - to get the desired handling of the Enter key, the crucial 
@@ -103,52 +119,25 @@ class highlight():
           self.newx = self.x 
           self.newy = self.y                     
        # Remove the highlight from the current cell. 
-       #self.scr.move(self.y, self.x)         
-       #self.scr.chgat(self.y, self.x, self.width, curses.A_NORMAL)                      
-       #self.scr.refresh() 
+       self.scr.move(self.y, self.x)         
+       self.scr.chgat(self.y, self.x, self.width, curses.A_NORMAL)                      
+       self.scr.refresh() 
        # Now move the highlight to the new coordinates.               
-       #self.scr.move(self.newy, self.newx)        
-       #(y, x) = self.scr.getyx() 
-       #self.y = y 
-       #self.x = x
-       #self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)  
-       #self.text = ""  
-       #self.scr.refresh()  
-    
-    # Enter text into a cell. This will then be handled by the 
-    # cell methods. 
-    #def store(self, stuff): 
-       #pass 
-       
-                                 
-                                                       
-#  A spreadsheet class. 
-class sheet():
-    def __init__(self, scr): 
-       self.scr = scr   
-       (y, x) = self.scr.getyx()                            
-       curses.noecho() 
-       self.scr.keypad(1)            
-       self.scr.scrollok(1)
-       self.scr.idlok(1) 
-       # Just added leaveok. 
-       self.scr.leaveok(0)                      
-       self.scr.setscrreg(0, 22) 
-       self.stuff = ""          
-       
-       # Set the default column width. 
-       self.colwidth = 7          
-       # Move to the origin.        
-       self.scr.move(1, 7)                       
-       # Create a cell
-       self.highlight = highlight()                                            
+       self.scr.move(self.newy, self.newx)        
+       (y, x) = self.scr.getyx() 
+       self.y = y 
+       self.x = x
+       self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)  
+       self.text = ""  
+       self.scr.refresh()  
+
        # Write the row and column headings.                             
        #self.colheads = list(chr(x) for x in range(65,75)) 
        #self.plist = list( (y,x) for y in range(1, 2) for 
        #   x in range(7, 75, 7) )
                     
        #self.range.write(self.plist, self.colheads)  
-       self.scr.refresh() 	
+       
        
        # Row headings 
        #self.scr.move(2, 0)         

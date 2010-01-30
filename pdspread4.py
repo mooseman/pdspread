@@ -37,20 +37,37 @@ class cell(object):
           self.data = self.data.rjust(self.width) 
        elif self.data.isdigit() == "False":    
           self.data = self.data.ljust(self.width)              
-                  
-
+   
+   
+# A range class. This allows us to manage a range of cells. 
+class range(cell): 
+    def __init__(self): 
+       self.rangelist = [] 
+       self.datalist = [] 
+       
+    def set(self, cells): 
+       self.rangelist = cells 
+       
+    def write(self, alist): 
+       self.datalist = alist 
+          
+    def get(self): 
+       return self.datalist  
+       
+                       
 # A highlight class. This has left and top boundaries. These are the leftmost 
 # column and the topmost row. We will make the defaults 2 for lbound and 
 # 2 for tbound. Coords is a tuple of the coordinates of the cell. 
 # This is in the form (row, col).    
-class highlight(cell): 
-    def __init__(self, scr): 
-       self.scr = scr     
+class highlight(range): 
+    def __init__(self):             
+       self.scr = scr 
        (y, x) = self.scr.getyx() 
-       self.y = y 
-       self.x = x   
-       self.newy = y 
-       self.newx = x   
+       self.y = 0 
+       self.x = 0   
+       self.newy = self.y 
+       self.newx = self.x   
+       self.address = "A1" 
        
        # Specify the leftmost column and topmost row.
        self.lbound = 7
@@ -108,7 +125,7 @@ class highlight(cell):
                                  
                                                        
 #  A spreadsheet class. 
-class sheet(cell):
+class sheet(highlight):
     def __init__(self, scr): 
        self.scr = scr   
        (y, x) = self.scr.getyx()                            
@@ -126,15 +143,13 @@ class sheet(cell):
        # Move to the origin.        
        self.scr.move(1, 7)                       
        # Create a cell
-       self.highlight = highlight(self.scr)                                            
+       self.myhighlight = highlight()                                            
        # Write the row and column headings.                             
        self.colheads = list(chr(x) for x in range(65,75)) 
        self.plist = list( (y,x) for y in range(1, 2) for 
           x in range(7, 75, 7) )
-          
-          
-       self.cell.write_range(self.colheads, self.plist, 
-            curses.A_STANDOUT, "center")  
+                    
+       self.range.write(self.plist, self.colheads)  
        self.scr.refresh() 	
        
        # Row headings 
@@ -142,15 +157,14 @@ class sheet(cell):
        self.rowheads = list(range(1,21))  
        self.plist = list( (y,x) for y in range(2, 22) for 
           x in range(0, 1) )
-       self.cell.write_range(self.rowheads, self.plist, 
-            curses.A_STANDOUT, "center")  
+       self.range.write(self.plist, self.rowheads)   
        self.scr.refresh() 	
        
        
        # The position (2, 7) puts the cell perfectly in position 
        # at cell "A1".                          
        self.scr.move(2, 7)
-       self.cell = cell(self.scr)                                      
+       self.myhighlight = highlight(self.scr)                                      
        self.scr.refresh()  
        
        

@@ -8,11 +8,27 @@
  
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    
+
+# A data object. This has the properties of value, alignment and so on. 
+class data(object):   
+  def value(self, val): 
+     self.value = val     
+     
+  def width(self, w): 
+     self.width = w    
+     
+  def align(self): 
+     if str(self.value).isdigit() == "True": 
+        self.value.rjust(self.width) 
+     elif str(self.value).isdigit() == "False":    
+        self.value.ljust(self.width) 
+               
+                     
 # A cell class. This has left and top boundaries. These are the leftmost 
 # column and the topmost row. We will make the defaults 2 for lbound and 
 # 2 for tbound. Coords is a tuple of the coordinates of the cell. 
 # This is in the form (row, col).    
-class cell(object): 
+class cell(data): 
     def __init__(self, scr): 
        self.scr = scr     
        (y, x) = self.scr.getyx() 
@@ -20,13 +36,13 @@ class cell(object):
        self.x = x   
        self.newy = y 
        self.newx = x   
-       self.text = ""
-       self.mytext = ""           
+       self.width = 7 
+       self.value = ""
+       
        # Specify the leftmost column and topmost row.
        self.lbound = 7
        self.tbound = 2                                  
-       # Set up the appearance of the cell
-       self.width = 7
+              
        # Now, set up the cell "highlight" and refresh the screen. 
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
        #self.scr.addstr(self.y, self.x, str(self.y) + " " + str(self.x)  ) 
@@ -59,7 +75,7 @@ class cell(object):
           self.newy = self.y                     
        # Remove the highlight from the current cell. 
        self.scr.move(self.y, self.x)         
-       self.scr.chgat(self.y, self.x, self.width, curses.A_NORMAL)                      
+       self.scr.chgat(self.y, self.x, self.width, curses.A_NORMAL)         
        self.scr.refresh() 
        # Now move the highlight to the new coordinates.               
        self.scr.move(self.newy, self.newx)        
@@ -68,6 +84,8 @@ class cell(object):
        self.x = x
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)  
        #self.text = ""  
+       #self.text.rjust(self.width)          
+       #self.text = self.text.rjust(self.width)          
        self.scr.refresh()  
                          
     # Write something in a cell and apply an attribute (curses.A_NORMAL, 
@@ -79,17 +97,11 @@ class cell(object):
     # This just saves text to the cell's text string. 
     def write(self, text):         
        for x in text:   
-          self.text += str(x)               
-                        
-    def align(self): 
-       if self.text.isdigit() == "True": 
-          self.mytext = self.text.rjust(self.width) 
-       elif self.text.isdigit() == "False":    
-          self.mytext = self.text.ljust(self.width)       
+          str(self.value) + str(x)                                                  
        self.scr.move(self.y, self.x)                   
-       self.scr.addstr(self.y, self.x, self.mytext )  
-       self.text = ""       
+       self.scr.addstr(self.y, self.x, str(self.value) )       
        self.scr.refresh() 
+       self.value = ""       
                   
     # Write a list of data into a range of cell positions. 
     def write_range(self, datalist, poslist, attr=None, align=None): 
@@ -161,27 +173,27 @@ class sheet(cell):
        self.cell.move("R")
        (y, x) = self.scr.getyx()                            
        self.cell.write("123") 
-       #self.align() 
+       self.align() 
        self.scr.refresh()  
        
        self.cell.move("D")
        (y, x) = self.scr.getyx()                            
        self.cell.write("abc") 
-       #self.align() 
+       self.align() 
        self.scr.refresh()  
        
        self.cell.move("D")
        (y, x) = self.scr.getyx()                            
        self.cell.write("456") 
-       #self.align() 
+       self.align() 
        self.scr.refresh()  
                 
        self.cell.move("D")
-       self.scr.addstr(y, x, str(self.cell.text) )                
+       self.scr.addstr(y, x, str(self.value) )                
        self.scr.refresh()  
               
        self.cell.move("D")
-       self.scr.addstr(y, x, str(self.cell.text) )                       
+       self.scr.addstr(y, x, str(self.value) )                       
        self.scr.refresh()  
                                           
        self.cell.move("D")
@@ -191,22 +203,8 @@ class sheet(cell):
     def test(self):       
        self.cell.write("foo") 
        self.scr.refresh()   
-                        
-    # After the Enter or an arrow key is pressed, run this code 
-    # to test and align the text. Run this FIRST, before the movement 
-    # code.                             
-    def align(self):  
-       #(y, x) = self.scr.getyx()                                       
-       mytext = self.cell.text 
-       if str(mytext).isdigit() == "True": 
-          mytext = mytext.rjust(self.width) 
-       elif str(mytext).isdigit() == "False":    
-          mytext = mytext.ljust(self.width)       
-       self.scr.move(self.cell.y, self.cell.x)                   
-       self.scr.addstr(self.cell.y, self.cell.x, str(mytext) )  
-       self.scr.refresh()                                                                                               
-          
-          
+                                  
+                                          
     # We handle keystrokes here.                                                                                                                                                                                                                                                                                                                      
     def action(self):  
        while (1): 

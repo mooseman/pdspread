@@ -35,17 +35,7 @@ class cell(object):
        #self.scr.addstr(self.y, self.x, str(self.y) + " " + str(self.x)  ) 
        self.scr.move(self.y, self.x)
        self.scr.refresh()                   
-                       
-    def align(self): 
-       if 'int' in str(type(self.value)): 
-          self.value = str(self.value) 
-          self.value.rjust(self.width) 
-       elif 'str' in str(type(self.value)): 
-          self.value.ljust(self.width) 
-       else: 
-          pass    
-       self.scr.refresh()   
-              
+                                     
     # Move the cell in a given direction  
     # Note - to get the desired handling of the Enter key, the crucial 
     # setting is self.scr.leaveok(0). 
@@ -151,10 +141,7 @@ class sheet(cell):
        self.lastcol = 10 
        self.firstrow = 1 
        self.lastrow = 28 
-       self.rownumlist = [range(1, 29) ] 
-       self.colheadlist = [range(1, 12) ] 
-       
-                        
+                               
        # Set the default column width. 
        self.colwidth = 7          
        # Move to the origin.        
@@ -220,24 +207,6 @@ class sheet(cell):
        self.cell.move("D")
        self.scr.refresh()  
         
-    # A helper function to help with moving around 
-    # the page.    
-    def changerowheads(self, numrows): 
-       self.scr.move(3, 0)         
-       for x in self.rowheads: 
-          x += numrows 
-       self.cell.celly += numrows    
-       self.cell.write_range(self.rowheads, self.plist, 
-            curses.A_STANDOUT, "center")  
-       self.scr.refresh() 	   
-                                
-    def changecolheads(self, numcols): 
-       for x in self.colheads:  
-          x += numcols 
-       self.cell.cellx += numcols   
-       self.cell.write_range(self.colheads, self.plist, 
-            curses.A_STANDOUT, "center")  
-       self.scr.refresh() 	   
                                              
     def pgup(self):                  
        pass 

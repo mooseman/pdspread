@@ -1,24 +1,78 @@
 
 
+# test.py 
 
-#  pdspread.py 
-#  A simple spreadsheet.  
-
-# This code is released to the public domain.  
- 
 import sys, re, types, itertools, math, curses, curses.ascii, traceback, string, os 
    
 # Set the topmost and the leftmost boundaries for a cell.  
 lbound = 7
 tbound = 3                                     
+width = 7 
+
+# A "store" class (to store the position of the cell cursor).  
+class store(): 
+   def __init__(self): 
+      self.data = None 
+      
+   def save(self, data): 
+      self.data = data 
+      
+   def get(self): 
+      return self.data 
+      
+   def display(self): 
+      print self.data          
+
+
+class rowheads(): 
+   def __init__(self, scr): 
+      self.scr = scr
+      (self.max_y, self.max_x) = self.scr.getmaxyx()   
+      #self.pagesize = self.max_y - 2                     
+      self.data = list(range(1, self.max_y) ) 
+      self.poslist = list( (y,x) for y in range(3, self.max_y) for 
+          x in range(0, 1) )
+                  
+   def update(self, inc):  
+      (self.max_y, self.max_x) = self.scr.getmaxyx()         
+      self.data = list(range(1, self.max_y) )     
+      self.data = [x + inc for x in self.data]  
+      self.poslist = list( (y,x) for y in range(3, self.max_y) for 
+          x in range(0, 1) )    
+      for x,y in zip(self.data, self.poslist):         
+         self.scr.chgat(y[0], y[1], width, curses.A_STANDOUT)                      
+         self.scr.addstr( y[0], y[1], 
+            str(x), curses.A_STANDOUT )   
+      # Move to the origin after the update      
+      #self.scr.move(3, 7)                          
+      self.scr.refresh() 	      
+      
+      
+class colheads(): 
+   def __init__(self, scr): 
+      self.scr = scr
+      (self.max_y, self.max_x) = self.scr.getmaxyx()   
+      self.data = list(range(1, int(self.max_x/7)  )  )  
+      self.poslist = list( (y,x) for y in range(2, 3) for 
+          x in range(7, self.max_x, 7) )   
+                      
+   def update(self, inc):  
+      (self.max_y, self.max_x) = self.scr.getmaxyx()         
+      self.data = list(range(1, int(self.max_x/7) ) )     
+      self.data = [x + inc for x in self.data]  
+      self.poslist = list( (y,x) for y in range(2, 3) for 
+          x in range(7, self.max_x, 7) )       
+      for x,y in zip(self.data, self.poslist):   
+         x = chr(x+64).center(width)
+         self.scr.chgat(y[0], y[1], width, curses.A_STANDOUT)               
+         self.scr.addstr( y[0], y[1], x, curses.A_STANDOUT )    
+      # Move to the origin after the update      
+      #self.scr.move(3, 7)                                   
+      self.scr.refresh() 	      
    
-   
-# A cell class. This has left and top boundaries. These are the leftmost 
-# column and the topmost row. We will make the defaults 2 for lbound and 
-# 2 for tbound. Coords is a tuple of the coordinates of the cell. 
-# This is in the form (row, col).    
-class cell(object): 
-    def __init__(self, scr): 
+
+class cell(): 
+   def __init__(self, scr): 
        self.scr = scr     
        (y, x) = self.scr.getyx() 
        self.y = y 
@@ -29,30 +83,30 @@ class cell(object):
        self.newx = x   
        self.width = 7 
        self.value = ""
-                     
+                           
        # Now, set up the cell "highlight" and refresh the screen. 
        self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)    
        #self.scr.addstr(self.y, self.x, str(self.y) + " " + str(self.x)  ) 
-       self.scr.move(self.y, self.x)
+       #self.scr.move(self.y, self.x)
        self.scr.refresh()                   
-                       
-    def align(self): 
-       if 'int' in str(type(self.value)): 
-          self.value = str(self.value) 
+   
+   def update(self, text):  
+       self.value = text 
+       
+   def align(self): 
+       if 'int' in str(type(self.value)):        
           self.value.rjust(self.width) 
        elif 'str' in str(type(self.value)): 
           self.value.ljust(self.width) 
-       else: 
-          pass    
-       self.scr.refresh()   
-              
-    # Move the cell in a given direction  
-    # Note - to get the desired handling of the Enter key, the crucial 
-    # setting is self.scr.leaveok(0). 
-    # Notice here that we have a "direction" of "*". This is used when 
-    # the Enter key is pressed. It moves the cursor to the beginning 
-    # of the cell (highlight).                       
-    def move(self, dir):               
+       self.scr.refresh()    
+                                     
+   # Move the cell in a given direction  
+   # Note - to get the desired handling of the Enter key, the crucial 
+   # setting is self.scr.leaveok(0). 
+   # Notice here that we have a "direction" of "*". This is used when 
+   # the Enter key is pressed. It moves the cursor to the beginning 
+   # of the cell (highlight).                       
+   def move(self, dir):               
        #(y, x) = self.scr.getyx() 
        self.dir=dir.upper()
        if self.dir == "L" and self.x-self.width >= lbound:           
@@ -83,101 +137,78 @@ class cell(object):
        (y, x) = self.scr.getyx() 
        self.y = y 
        self.x = x
-       self.scr.chgat(self.newy, self.newx, self.width, curses.A_STANDOUT)  
+       self.scr.chgat(self.newy, self.newx, self.width, curses.A_STANDOUT)         
        #self.text = ""  
        #self.text.rjust(self.width)          
        #self.text = self.text.rjust(self.width)          
        self.scr.refresh()  
                          
-    # Write something in a cell and apply an attribute (curses.A_NORMAL, 
-    # curses.A_STANDOUT etc) to it. You can also apply alignment 
-    # (usually centering) here.     
-    # We will do a "range" version of this function to write a list of 
-    # text into a range of cells - just what is needed for headings and 
-    # so on.                          
-    # This just saves text to the cell's text string. 
-    def write(self, text):         
-       self.value = text             
-       self.scr.move(self.y, self.x)  
-       self.align()                                                                      
-       self.scr.addstr(self.y, self.x, str(self.value) )    
-       
+   # Write something in a cell and apply an attribute (curses.A_NORMAL, 
+   # curses.A_STANDOUT etc) to it. You can also apply alignment 
+   # (usually centering) here.     
+   # We will do a "range" version of this function to write a list of 
+   # text into a range of cells - just what is needed for headings and 
+   # so on.                          
+   # This just saves text to the cell's text string. 
+   def write(self, text):         
+       self.value = text  
+       self.scr.move(self.y, self.x)         
+       # Find the type of the text.  
+       if 'int' in str(type(self.value)): 
+          self.scr.addstr(self.y, self.x, str(self.value).rjust(width) )                     
+       elif 'str' in str(type(self.value)): 
+          self.scr.addstr(self.y, self.x, str(self.value).rjust(width) )                               
        self.scr.refresh() 
-       self.value = ""       
+       self.value = ""        
                   
-    # Write a list of data into a range of cell positions. 
-    def write_range(self, datalist, poslist, attr=None, align=None): 
+   # Write a list of data into a range of cell positions. 
+   def write_range(self, datalist, poslist): 
        self.datalist = [] 
-       self.poslist = poslist    
-       # Apply alignment (if any) 
-       if align == None: 
-          for x in datalist: 
-             self.datalist.append(x) 
-       elif align == "center": 
-          for x in datalist: 
-             self.datalist.append(str(x).center(self.width)) 
-       else: 
-          pass                   
+       self.poslist = poslist   
+       for x in datalist:  
+          self.datalist.append(x)        
        # Get the position of the cursor. 
        (y, x) = self.scr.getyx() 
-       # Write the text, applying the attribute (if used) 
-       if attr == None: 
-          for x,y in zip(self.datalist, self.poslist): 
-             self.scr.addstr(y[0], y[1], str(x) ) 
-       else:   
-          for x,y in zip(self.datalist, self.poslist):         
-             self.scr.addstr(y[0], y[1], str(x), attr ) 
+       # Write the text 
+       for x,y in zip(self.datalist, self.poslist): 
+          self.scr.addstr(y[0], y[1], str(x) )        
        # Refresh the screen 
        self.scr.refresh()                                                                  
    
-                                                                                              
+                                                                                                 
 #  A spreadsheet class. 
-class sheet(cell):
+class sheet(cell, rowheads, colheads):
     def __init__(self, scr): 
        # Do all of the curses stuff first.  
        self.scr = scr   
-       (y, x) = self.scr.getyx()                            
+       (y, x) = self.scr.getyx()            
+       (self.max_y, self.max_x) = self.scr.getmaxyx()   
+       self.pagesize = self.max_y - 2                     
        curses.noecho() 
        self.scr.keypad(1)            
        self.scr.scrollok(1)
        self.scr.idlok(1) 
        # Just added leaveok. 
        self.scr.leaveok(0)                      
-       self.scr.setscrreg(0, 28) 
+       self.scr.setscrreg(0, self.max_y-1) 
             
-       # Now do the rest of the setup.           
-       # Set the initial rows and columns which are shown 
-       self.firstcol = 1 
-       self.lastcol = 10 
-       self.firstrow = 1 
-       self.lastrow = 28 
-       self.rownumlist = [range(1, 29) ] 
-       self.colheadlist = [range(1, 12) ] 
-       
-                        
-       # Set the default column width. 
-       self.colwidth = 7          
+       # Now do the rest of the setup.                                                                      
        # Move to the origin.        
        self.scr.move(3, 7)      
                         
        # Create a cell
        self.cell = cell(self.scr)  
+       self.y = self.cell.y
+       self.x = self.cell.x       
                                                  
-       # Column headings.                             
-       self.colheads = list(chr(x) for x in range(65,76)) 
-       self.plist = list( (y,x) for y in range(2, 3) for 
-          x in range(7, 83, 7) )        
-       self.cell.write_range(self.colheads, self.plist, 
-            curses.A_STANDOUT, "center")         
+       # Column headings.      
+       self.c = colheads(self.scr)    
+       self.c.update(0)
        self.scr.refresh() 	
        
        # Row headings 
-       self.scr.move(3, 0)         
-       self.rowheads = list(range(1,29))  
-       self.plist = list( (y,x) for y in range(3, 31) for 
-          x in range(0, 1) )
-       self.cell.write_range(self.rowheads, self.plist, 
-            curses.A_STANDOUT, "center")  
+       self.r = rowheads(self.scr)
+       self.r.update(0)       
        self.scr.refresh() 	
        # The position (2, 7) puts the cell perfectly in position 
        # at cell "A1".                          
@@ -189,20 +220,17 @@ class sheet(cell):
        self.cell.move("R")
        (y, x) = self.scr.getyx()                            
        self.cell.write( "(" + str(self.cell.celly) 
-           + "," + str(self.cell.cellx) + ")" ) 
-       self.cell.align()
+           + "," + str(self.cell.cellx) + ")" )        
        self.scr.refresh()  
        
        self.cell.move("D")
        (y, x) = self.scr.getyx()                            
        self.cell.write("abc") 
-       self.cell.align()
        self.scr.refresh()  
        
        self.cell.move("D")
        (y, x) = self.scr.getyx()                            
-       self.cell.write("456") 
-       self.cell.align()
+       self.cell.write(456) 
        self.scr.refresh()  
                 
        self.cell.move("D")
@@ -220,32 +248,15 @@ class sheet(cell):
        self.cell.move("D")
        self.scr.refresh()  
         
-    # A helper function to help with moving around 
-    # the page.    
-    def changerowheads(self, numrows): 
-       self.scr.move(3, 0)         
-       for x in self.rowheads: 
-          x += numrows 
-       self.cell.celly += numrows    
-       self.cell.write_range(self.rowheads, self.plist, 
-            curses.A_STANDOUT, "center")  
-       self.scr.refresh() 	   
-                                
-    def changecolheads(self, numcols): 
-       for x in self.colheads:  
-          x += numcols 
-       self.cell.cellx += numcols   
-       self.cell.write_range(self.colheads, self.plist, 
-            curses.A_STANDOUT, "center")  
-       self.scr.refresh() 	   
                                              
     def pgup(self):                  
-       pass 
-          
+       self.r.update(-20) 
+       self.scr.refresh()     
           
           
     def pgdn(self): 
-       pass                    
+       self.r.update(20) 
+       self.scr.refresh()     
           
           
                
@@ -280,9 +291,9 @@ class sheet(cell):
           # Get a keystroke. Note - to get alignment working, maybe 
           # we need to use getstr here (instead of getch) ?          
           c=self.scr.getch()		
-          if c in (curses.KEY_ENTER, 10):                
-             curses.noecho()    
-             self.cell.align()           
+          if c in (curses.KEY_ENTER, 10):      
+             self.cell.align()                
+             curses.noecho()                 
              self.cell.move("D")                
              # To move the cursor to the start of the cell, comment out 
              # the above line, and uncomment the line below.         
@@ -304,13 +315,21 @@ class sheet(cell):
              curses.noecho()              
              self.cell.move("R")
              self.scr.refresh()     
+          # If the terminal window is resized, take some action 
+          elif c==curses.KEY_RESIZE:       
+             curses.noecho()                     
+             (y, x) = self.scr.getyx()  
+             (self.max_y, self.max_x) = self.scr.getmaxyx()   
+             self.r.update(0)
+             self.c.update(0)
+             self.scr.refresh()        
           # Page Up. 
           elif c==curses.KEY_PPAGE: 
-             self.changerowheads(-20) 
+             self.pgup()  
              self.scr.refresh()                   
           # Page Down. 
           elif c==curses.KEY_NPAGE: 
-             self.changerowheads(20)
+             self.pgdn() 
              self.scr.refresh()                  
           elif c==curses.KEY_F2: 
              self.cell.create_win() 
@@ -323,8 +342,9 @@ class sheet(cell):
           # This is where user-entered text is controlled from. 
           ######################################################          
           elif 0<c<256: 
+             curses.noecho()  
              c=chr(c) 
-             self.cell.value += c              
+             self.cell.value += c                                       
           else: 
              pass    
                                        
@@ -359,4 +379,14 @@ if __name__ == '__main__':
      curses.echo() ; curses.nocbreak()
      curses.endwin()
      traceback.print_exc()  # Print the exception
+
+
+
+
+
+
+
+
+
+
 

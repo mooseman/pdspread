@@ -4,20 +4,9 @@
  Inspired by "sc" and Andrew M. Kuchling's excellent "tabview.py" app, 
  this is a simple Python spreadsheet using curses. 
 
- Acknowledgement: This code would not have been possible without 
-<<<<<<< HEAD
- Andrew M. Kuchling's "tabview.py" app. 
- Very many thanks to Andrew for doing that application!   
-=======
- Andrew M. Kuchling's excellent "tabview.py" app. Some code from 
- that application is used here. Very many thanks to Andrew for 
- doing that application!   
- Also, very many thanks to those in pythonforum.org who have helped
- me with my questions there. 
- Many thanks also to "bvdet" from bytes.com. The matrix code in this 
- app is based on the code that he posted here -  
- http://bytes.com/topic/python/answers/594203-please-how-create-matrix-python
->>>>>>> 6f0fa65528eb68bfd035ab15f55ae56c24af710c
+ NOTE - (as at 22nd June 2012) -  The scrolling code was not working for a long time. 
+I have now got this working again and will push up a new version of the spreadsheet 
+code soon. 
 
  To exit the spreadsheet, press Ctrl-G. 
  

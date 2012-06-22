@@ -1,0 +1,16 @@
+
+***  README *** 
+
+ Inspired by "sc" and Andrew M. Kuchling's excellent "tabview.py" app, 
+ this is a simple Python spreadsheet using curses. 
+
+ Acknowledgement: This code would not have been possible without 
+ Andrew M. Kuchling's "tabview.py" app. 
+ Very many thanks to Andrew for doing that application!   
+
+ To exit the spreadsheet, press Ctrl-G. 
+ 
+ As usual, this is public-domain... "share and enjoy....."  :)  
+- mooseman 
+
+ 

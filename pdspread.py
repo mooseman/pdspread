@@ -10,7 +10,11 @@
 #  stores data there.   
 
  
+<<<<<<< HEAD
 import sys, itertools, types, math, curses, curses.ascii, string, os 
+=======
+import sys, types, math, curses, curses.ascii, string, os 
+>>>>>>> 6f0fa65528eb68bfd035ab15f55ae56c24af710c
 # Set the topmost and the leftmost boundaries for a cell.  
 lbound = 7
 tbound = 3                                     
@@ -73,7 +77,14 @@ def splitaddress(cell):
    return splitaddress
 
 
+<<<<<<< HEAD
 # A cell class. 
+=======
+# A test class to manipulate cell references 
+# Look up the cell address (e.g. "C7"), get the screen 
+# position, and do something with it. 
+# H is a highlight flag - "Y" or "N" 
+>>>>>>> 6f0fa65528eb68bfd035ab15f55ae56c24af710c
 class cell(object): 
    def __init__(self, scr, y, x, data):
       self.scr = scr 
@@ -91,6 +102,7 @@ class cell(object):
       self.scr.refresh()            
       
 
+<<<<<<< HEAD
 # A heading class. 
 class heading(object):    
    def __init__(self, scr, y_range, x_range, datalist): 
@@ -98,11 +110,20 @@ class heading(object):
       self.y_range = y_range 
       self.x_range = x_range   
       self.poslist = list(itertools.product(self.y_range, self.x_range) ) 
+=======
+# A range class, derived from cell.  
+class crange(cell): 
+   def __init__(self, scr, y_range, x_range, datalist): 
+      self.scr = scr 
+      self.poslist = list( (y,x) for y in y_range for 
+         x in x_range)        
+>>>>>>> 6f0fa65528eb68bfd035ab15f55ae56c24af710c
       self.datalist = datalist 
       for x,y in zip(self.datalist, self.poslist):
              self.scr.addstr(y[0], y[1], str(x) ) 
       self.scr.refresh() 
       
+<<<<<<< HEAD
    def show(self): 
       for x,y in zip(self.datalist, self.poslist):
              self.scr.addstr(y[0], y[1], str(x) ) 
@@ -126,6 +147,8 @@ class heading(object):
       self.scr.chgat(self.y, self.x, self.width, curses.A_STANDOUT)  
       self.scr.refresh() 
      
+=======
+>>>>>>> 6f0fa65528eb68bfd035ab15f55ae56c24af710c
 
 #  A highlight class, derived from cell.  
 # This class has a "move" method. 
@@ -151,9 +174,12 @@ class hlight(cell):
       self.scr.refresh()    
    
    
+<<<<<<< HEAD
    
    
    
+=======
+>>>>>>> 6f0fa65528eb68bfd035ab15f55ae56c24af710c
 # Sheet class. This stores the data for all cells.    
 # It also has a visible range. 
 # It is the sheet which displays the data.  
@@ -170,6 +196,7 @@ class sheet(object):
      
       self.datadict = {}     
       # Row and column headings 
+<<<<<<< HEAD
       self.rowheads = heading(self.scr, list(range(2,31)), 
           list(range(3,4)), list(range(1, 29)) ) 
           
@@ -190,6 +217,19 @@ class sheet(object):
       pass              
                   
                   
+=======
+      self.rowheads = crange(self.scr, list(range(2,30)), 
+          list(range(3,4)), list(range(1, 29)) ) 
+          
+      self.colheads = crange(self.scr, list( range(1, 2) ),   
+          list(range(10, 83, 7) ),  list( chr(x) for 
+          x in range(65, 76) ) )  
+                    
+      # The cell highlight        
+      self.h = hlight(self.scr, 2, 7, '') 
+      self.h.show()       
+      self.scr.refresh()                       
+>>>>>>> 6f0fa65528eb68bfd035ab15f55ae56c24af710c
                            
    # Handle keystrokes here.  
    def action(self):  

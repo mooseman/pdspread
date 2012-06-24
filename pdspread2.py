@@ -144,24 +144,31 @@ class sheet(highlight, storage):
       # Create the headings 
       # Simpler to do this in this class (rather than having a 
       # separate heading class). We will have an update method for 
-      # the headings.   
+      # the headings. 
+       
+      # First, we set our "displayed range" - this is the 
+      # **absolute range** of cells that are shown on the screen.       
+      self.rowrange = list(range(1, self.maxrows) )  
+      self.colrange = list(range( 10, self.maxcols, 7) )    
+      
+      # The positions of the row headings       
       self.rowheadposlist = list((y,x) 
          for y in range(2, self.maxrows) 
             for x in range(2, 3) )  
-      self.rowheaddata = list(range(1, self.maxrows) ) 
+      self.rowdata = self.rowrange 
       
       self.colheadposlist = list( (y,x) 
          for y in range(1, 2) 
             for x in range(10, self.maxcols, 7) )  
-      self.colheaddata = list( chr(x) for x in range(65,78) )      
-      
+      self.coldata = list( chr(x) for x in range(65,78) )         
+           
       # Show the headings 
-      for x,y in zip(self.rowheaddata, self.rowheadposlist):
+      for x,y in zip(self.rowdata, self.rowheadposlist):
          self.scr.addstr(y[0], y[1], str(x) )              
       
-      for x,y in zip(self.colheaddata, self.colheadposlist):
+      for x,y in zip(self.coldata, self.colheadposlist):
          self.scr.addstr(y[0], y[1], str(x) )   
-         
+                         
       # TO DO: Need an update method for the headings. 
       # This will be used when we scroll across the page or 
       # up and down the page.     
@@ -171,7 +178,8 @@ class sheet(highlight, storage):
       self.h = highlight(self.scr, 2, 7, 7) 
       # Create storage dict 
       self.d = storage() 
-               
+              
+                 
    def add_data(self, abs_address, mydata): 
       self.index = (abs_address[0], abs_address[1]) 
       self.data = mydata 
@@ -180,7 +188,19 @@ class sheet(highlight, storage):
   
    # Update the headings. 
    def update_headings(self, htype, inc): 
-          
+      if htype == "R": 
+         for x in self.rowdata: 
+            x += inc 
+         for x,y in zip(self.rowdata, self.rowheadposlist):
+            self.scr.addstr(y[0], y[1], str(x) )      
+            
+      elif htype == "C": 
+         for x in self.coldata: 
+            x += inc 
+         for x,y in zip(self.coldata, self.colheadposlist):
+            self.scr.addstr(y[0], y[1], str(x) )   
+      # Refresh the screen                
+      self.scr.refresh()                  
        
                
       # Handle keystrokes here.  
@@ -196,11 +216,21 @@ class sheet(highlight, storage):
              #h.move("D")   
              self.scr.refresh()   
           elif c==curses.KEY_UP:  
-             curses.noecho()               
+             curses.noecho()  
+             if self.h.y == 2 and self.h.absy > 0: 
+                self.update_headings("R", -1) 
+             else: 
+                pass 
+                          
              self.h.move("U")             
              self.scr.refresh()
           elif c==curses.KEY_DOWN:
-             curses.noecho()               
+             curses.noecho()  
+             if self.h.y == self.maxrows: 
+                self.update_headings("R", 1) 
+             else: 
+                pass 
+                          
              self.h.move("D")                               
              self.scr.refresh()   
           elif c==curses.KEY_LEFT: 

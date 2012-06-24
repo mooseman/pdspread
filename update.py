@@ -33,22 +33,22 @@ class thing(object):
   
   # Increment method. Update val by a set number
   def inc(self, inc): 
-     self.val += inc  
-     # Overwrite whatever was there 
-     self.scr.addnstr(self.ypos, self.xpos, " ", 30)  
+     self.val += inc          
      # Write new value 
+     # The spaces after the value are so that we 
+     # properly overwrite what was there before. 
      self.scr.addstr(self.ypos, self.xpos, "New value: " 
-        + str(self.val) ) 
+        + str(self.val) + "     " ) 
      self.scr.refresh() 
      
   # Set value to a particular value    
   def set(self, val): 
-     self.val = val 
-     # Overwrite whatever was there 
-     self.scr.addnstr(self.ypos, self.xpos, " ", 30)  
+     self.val = val      
      # Write new value 
+     # The spaces after the value are so that we 
+     # properly overwrite what was there before. 
      self.scr.addstr(self.ypos, self.xpos, "New value: " 
-        + str(self.val) ) 
+        + str(self.val) + "     " ) 
      self.scr.refresh()    
 
 

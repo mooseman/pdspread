@@ -52,6 +52,29 @@ class thing(object):
      self.scr.refresh()    
 
 
+# An "array thing" to play with and to update.  
+class arrthing(object): 
+   def __init__(self, scr, posarr, dataarr): 
+      self.scr = scr 
+      self.posarr = posarr 
+      self.dataarr = dataarr 
+      for x,y in zip(self.dataarr, self.posarr):
+         self.scr.addstr(y[0], y[1], str(x) ) 
+      self.scr.refresh()    
+      
+   def inc(self, myint): 
+      for index, item in enumerate(self.dataarr):  
+        self.dataarr[index] += myint
+               
+      # Write new value 
+      # The spaces after the value are so that we 
+      # properly overwrite what was there before. 
+      for x,y in zip(self.dataarr, self.posarr):
+         self.scr.addstr(y[0], y[1], str(x) + "     " )      
+      self.scr.refresh()        
+      
+     
+
                                     
 class sheet(heading): 
    def __init__(self, scr):       
@@ -121,8 +144,13 @@ class sheet(heading):
       self.thing1 = thing(self.scr, 5, 10, 42)    
       self.thing2 = thing(self.scr, 7, 10, self.y) 
       self.thing3 = thing(self.scr, 9, 10, self.x) 
+      self.thing4 = arrthing(self.scr, [ (11,10), (11,15), (11,20), 
+         (11,25) ], [1, 2, 3, 4] )        
       # Move away       
-      self.scr.move(10, 30)                                            
+      
+      self.scr.move(10, 30)     
+      #self.scr.addstr(self.y, self.x, str(self.thing4) )
+                                             
       self.scr.refresh()          
                          
                   
@@ -161,13 +189,15 @@ class sheet(heading):
           elif c==curses.KEY_LEFT: 
              curses.noecho()                
              self.thing2.set(self.y)     
-             self.thing3.set(self.x-1)   
+             self.thing3.set(self.x-1)  
+             self.thing4.inc(-1)  
              self.scr.move(self.y, self.x-1)                                                                        
              self.scr.refresh()
           elif c==curses.KEY_RIGHT: 
              curses.noecho()                
              self.thing2.set(self.y)     
              self.thing3.set(self.x+1)  
+             self.thing4.inc(1) 
              self.scr.move(self.y, self.x+1)                                                                     
              self.scr.refresh()     
           # Page Up. 
